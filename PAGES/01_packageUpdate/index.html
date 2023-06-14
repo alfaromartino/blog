@@ -1796,12 +1796,6 @@ h1{
 <p></div> </div> <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
     <p> <img style="width: 1200px; height:auto; max-width:100%;" src=" /blog/assets/PAGES/01_packageUpdate/pics/pkg01.png"/>
     </p>
-    </div> </div>  <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
-    <p> <img style="width: 1200px; height:auto; max-width:100%;" src=" assets/PAGES/01_packageUpdate/pics/pkg01.png"/>
-    </p>
-    </div> </div>  <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
-    <p> <img style="width: 1200px; height:auto; max-width:100%;" src=" /assets/PAGES/01_packageUpdate/pics/pkg01.png"/>
-    </p>
     </div> </div>   </details></div>
 <p>As can be seen, the installed version of <code>DataFrames</code> was not up-to-date, and Julia wouldn&#39;t let me update it in isolation. Moreover, I needed <code>DataFrames</code> for the project I was working on, as the version installed was too old. Thus, I needed to i&#41; identify what packages were preventing the update of <code>DataFrames</code>, ii&#41; and remove those packages. To gain more insight into the packages in conflict, we can use the option <code>outdated</code> of the command <code>Pkg.status</code>. </p>
  <div class=" code_box"> <details  open><summary> Code  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
