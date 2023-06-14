@@ -104,7 +104,6 @@ dftoc[firstindex(dftoc.pagemd), :next_page] = replace(dftoc.pagemd[end], r".md$"
 # TO REFER TO ASSETS (for images and the link to codeDownload)
     assets_folder(PAGEfile) = "/assets/$(subfolder)/$(PAGEfile)"
 dftoc.path_assets       = assets_folder.(dftoc.name)
-dftoc.temp_assets       = string.("/$(path_prepath)", dftoc.path_assets)
 
 let dftoc = dftoc
     assets_folder(PAGEfile) = "/assets/$(subfolder)/$(PAGEfile)"
