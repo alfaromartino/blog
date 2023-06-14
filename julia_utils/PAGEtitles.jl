@@ -1,8 +1,14 @@
+#= path_prepath is the repository's name on github.
+To install on github, we need to upload everything from '_site' to the repository.
+Then, we need to go to settings -> Pages (under the  label "code and automation")
+Then, we specify the branch and save it. It can take 30 minutes to be ready the first time.=#
+
 ############################################################################
 #
 #               FOLDER CONTAINING .MD FILES
 #
 ############################################################################
+
 path_prepath = "blog"
 subfolder    = "PAGES"
 

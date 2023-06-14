@@ -2364,7 +2364,7 @@ document.onkeydown = function(evt) {
 <style>
 
 
-@media (max-width: 768px) {
+@media (max-width: 850px){
      .franklin-content,.jumbotron, .left_bar{
         font-size:80% !important;}
 
@@ -2423,7 +2423,7 @@ document.onkeydown = function(evt) {
 
 
 
-@media (max-height:900px) {
+@media (max-height: 600px) {
      .franklin-content,.jumbotron, .left_bar{
         font-size:90% !important;}
 
@@ -2476,11 +2476,22 @@ document.onkeydown = function(evt) {
 
       .left_bar img{
       width:0% !important; height:0% !important; visibility: hidden;}  
-
-      
-    
-      
 }
+
+
+    @media (max-width: 850px), (max-height: 600px) {
+      h2, .lead {font-size: 140%;padding-top:1em; }
+      h1 {font-size: 200%}
+    }
+
+    @media (max-height: 600px){
+          .left_bar ul, .left_bar ul li {text-indent:0; padding-top:0.0em ; padding-bottom:0em !important; height:3.2em; font-size:102%;}
+        }
+
+    @media (max-width: 850px){
+      .left_bar ul, .left_bar ul li {text-indent:0; padding-top:0.25em ; padding-bottom:0em !important; height:3.5em; font-size:102%; padding-left:0.15em;}
+    }  
+
 
 </style>
 
