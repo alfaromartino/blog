@@ -16,15 +16,7 @@
   
 
   <!-- FRANKLIN DEFINED - LATEX AND CODE HIGHLIGHTS -->
-   <!-- HERE WE ADD ANY CSS ELEMENT WE WANT TO ADD
-(don't confuse head with header, head applies globally) -->
-
-<link rel="stylesheet" href="/blog/libs/katex/katex.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/aaaakshat/cm-web-fonts@latest/fonts.css"></link>
-
-<link rel="stylesheet" 
-href="https://fonts.googleapis.com/css?family=Open+Sans"></link>
-<!-- Montserrat|Roboto|Lato|Raleway|Work+Sans|Raleway -->     
+  
    <link rel="stylesheet" href="/blog/libs/highlight/styles/vs_myversion.css">
    
 
@@ -57,7 +49,7 @@ header .jumbotron {
     
 <!-- WINDOWS TAB -->
   <title>T.E.C.H. - Martin Alfaro</title>
-  <link rel="icon" type="image/png"  href="/blog/assets/pics_html/dog_logo.ico">
+  <link rel="icon" type="image/png"  href="/blog/assets/pics_html/dog_home.png">
     
 
 </head>
@@ -1794,22 +1786,26 @@ h1{
  <div class=" code_box"> <details  open><summary> Code  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
 <pre><code class="language-julia">Pkg.status&#40;&#41;</code></pre>
 <p></div> </div> <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
-    <p> <img style="width: 1200px; height:auto; max-width:100%;" src=" /blog/assets/PAGES/01_packageUpdate/pics/pkg01.png"/>
+    <p> <img style="width:1200px; height:auto; max-width:100%;" src="/blog/blog/assets/PAGES/01_packageUpdate/pics/pkg01.png"/>
     </p>
     </div> </div>   </details></div>
 <p>As can be seen, the installed version of <code>DataFrames</code> was not up-to-date, and Julia wouldn&#39;t let me update it in isolation. Moreover, I needed <code>DataFrames</code> for the project I was working on, as the version installed was too old. Thus, I needed to i&#41; identify what packages were preventing the update of <code>DataFrames</code>, ii&#41; and remove those packages. To gain more insight into the packages in conflict, we can use the option <code>outdated</code> of the command <code>Pkg.status</code>. </p>
  <div class=" code_box"> <details  open><summary> Code  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
 <pre><code class="language-julia">Pkg.status&#40;outdated&#61;true&#41;</code></pre>
 <p></div> </div> <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
-    <p> <img style="width: 450px; height:auto; max-width:100%;" src=" /blog/assets/PAGES/01_packageUpdate/pics/pkg02.png"/>
+    <p> <img style="width:450px; height:auto; max-width:100%;" src="/blog/assets/PAGES/01_packageUpdate/pics/pkg02.png"/>
     </p>
     </div> </div>   </details></div>
+<div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
+    <p> <img style="width:450px; height:auto; max-width:100%;" src="/blog/assets/PAGES/01_packageUpdate/pics/pkg02.png"/>
+    </p>
+    </div> </div> 
 <p>Let&#39;s analyze this information with the specific goal of updating <code>DataFrames</code> in mind. The output indicates that the installed version of <code>DataFrames</code> in the system is v0.21.8, whereas the last available version is v1.4.4. Although not important for our purposes, it also reveals that <code>DataFrames</code> is blocking the update of <code>CategoricalArrays</code>. Consequently, once we solve the update of <code>DataFrames</code>, we&#39;ll simultaneously solve the issue with <code>CategoricalArrays</code>.</p>
 <p>However, this information doesn&#39;t indicate what packages are conflicting with the update of <code>DataFrames</code>. To identify this, we&#39;ll use <code>Pkg.add</code>, but with an option that specifies the version of <code>DataFrames</code> to be installed &#40;v1.4.4 in this case&#41;. This won&#39;t allow the update to occur, but it&#39;ll reveal the cause. </p>
  <div class=" code_box"> <details  open><summary> Code  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
 <pre><code class="language-julia">Pkg.add&#40;Pkg.PackageSpec&#40;; name&#61;&quot;DataFrames&quot;, version&#61;&quot;1.4.4&quot;&#41;&#41;</code></pre>
 <p></div> </div> <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
-    <p> <img style="width: 900px; height:auto; max-width:100%;" src=" /blog/assets/PAGES/01_packageUpdate/pics/pkg03.png"/>
+    <p> <img style="width:900px; height:auto; max-width:100%;" src="/blog/blog/assets/PAGES/01_packageUpdate/pics/pkg03.png"/>
     </p>
     </div> </div>   </details></div>
 <p>The output shows that the package <code>TexTables</code> uses <code>DataFrames</code> as a dependency and hasn&#39;t been maintained for a while. By removing it, we&#39;ll be able to update <code>DataFrames</code>.</p>
@@ -1817,7 +1813,7 @@ h1{
 <pre><code class="language-julia">Pkg.rm&#40;&quot;TexTables&quot;&#41;
 Pkg.update&#40;&#41;</code></pre>
 <p></div> </div> <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
-    <p> <img style="width: 450px; height:auto; max-width:100%;" src=" /blog/assets/PAGES/01_packageUpdate/pics/pkg04.png"/>
+    <p> <img style="width:450px; height:auto; max-width:100%;" src="/blog/blog/assets/PAGES/01_packageUpdate/pics/pkg04.png"/>
     </p>
     </div> </div>   </details></div>
 <p>Notice we executed <code>Pkg.update&#40;&#41;</code> rather than <code>Pkg.update&#40;&quot;DataFrames&quot;&#41;</code>. In this way, other packages that couldn&#39;t be updated will be indirectly updated as well. In our case, this made it possible to update <code>CategoricalArrays</code>, which in turn allowed for the update of <code>Distributions</code> and <code>FixedEffectModels</code>.</p>
@@ -1940,11 +1936,6 @@ function goToNextPage() {
 </div><!-- CONTENT ENDS HERE -->
 
 <!-- ADDED BY FRANKLIN -->
-  
-      
-
-
-
   
   
       <script src="/blog/libs/highlight/highlight.pack.js"></script>

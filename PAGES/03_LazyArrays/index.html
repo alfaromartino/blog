@@ -57,7 +57,7 @@ header .jumbotron {
     
 <!-- WINDOWS TAB -->
   <title>T.E.C.H. - Martin Alfaro</title>
-  <link rel="icon" type="image/png"  href="/blog/assets/pics_html/dog_logo.ico">
+  <link rel="icon" type="image/png"  href="/blog/assets/pics_html/dog_home.png">
     
 
 </head>
@@ -1775,7 +1775,7 @@ h1{
         <h2>Introduction</h2></p>
  <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
       <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
-      Remark </span>  </div>  <div class=content>     The <strong> script used in this post</strong> can be found <a href="https://github.com/alfaromartino/alfaromartino.github.io/tree/master/blog/assets/PAGES/03_LazyArrays/codeDownload">here</a> under the name <code>allCode.jl</code>. If you wish to run the code with the same package versions used in this post, download instead <code>allCode_withPkg.jl</code> along with <code>Project.toml</code> and <code>Manifest.toml</code>.  </div>  </div>
+      Remark </span>  </div>  <div class=content>     The <strong> script used in this post</strong> can be found <a href="https://github.com/alfaromartino/blog/tree/main//assets/PAGES/03_LazyArrays/codeDownload">here</a> under the name <code>allCode.jl</code>. If you wish to run the code with the same package versions used in this post, download instead <code>allCode_withPkg.jl</code>, along with <code>Project.toml</code> and <code>Manifest.toml</code>.  </div>  </div>
 <p>Readability and performance are two crucial features in coding. However, they&#39;re not always compatible, and often you need to prioritize one over the other. In this post, we&#39;ll explore a tool that enables you to enhance performance without compromising readability: lazy broadcasting.</p>
 <p>In programming, the term   <span style="color: rgb(73, 113, 153);"><strong> lazy</strong></span> refers to postponing the execution of some code until the result is required. The opposite of lazy is   <span style="color: rgb(73, 113, 153);"><strong> eager</strong></span>, which means executing the code as soon as the computer reads it. Julia performs broadcasting operations eagerly by default, and this post shows how lazy broadcasting can enhance performance. </p>
 <p>Lazy broadcasting is useful for computing <strong> an output requiring several intermediate steps</strong>, in case intermediate results are unimportant and hence we don&#39;t need to keep them. This improves performance by  <em> i)</em> avoiding the allocation of memory for intermediate results, <span class="footn supr">&#91;note&#93;  <span class="footn_text"> Strictly, speaking we&#39;re referring to  <em> heap allocations</em>, whose explanation is technical and not necessary for our purposes. You can find an explanation to why this is important for performance <a href="https://docs.julialang.org/en/v1.9/manual/performance-tips/#Measure-performance-with-&#91;@time&#93;&#40;@ref&#41;-and-pay-attention-to-memory-allocation">here</a>, and an intuition distinction between  <em> heap</em> and  <em> stack</em> allocations <a href="https://discourse.julialang.org/t/a-nice-explanation-of-memory-stack-vs-heap/53915">here</a>.  </span></span>  and  <em> ii)</em> combining operations into a single one, which enables Julia to perform further optimizations.</p>
