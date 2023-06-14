@@ -1,0 +1,1 @@
+compute_profit1(price_vector) == compute_profit2(price_vector)
