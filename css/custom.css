@@ -159,7 +159,7 @@ body { counter-reset: eqnum; }
   display: inline-block;
   /* Allow display equations to wrap on small screens. */
   white-space: normal;  
-  font-size: 115% !important;
+  font-size: 110% !important;
 }
 
 
