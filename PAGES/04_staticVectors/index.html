@@ -1423,7 +1423,7 @@ h1{
   
 
 
-    <h1>Conflicting Packages Preventing Updating</h1>    
+    <h1>Performance Improvements in Julia (Part 2): Tuples and Static Arrays</h1>    
     <div class="lead"> </div>
     
     
@@ -1771,81 +1771,255 @@ h1{
 
 
 <div class="franklin-content">
-<section id="description_of_the_issue_covered" class="scrollspy section-bg-color">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg- mx-auto">
-        <h2>Description of the Issue Covered</h2></p>
  <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
       <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
-      Remark </span>  </div>  <div class=content>     If you stumble upon issues when updating packages, this post guides you on how to handle the upgrade process. Otherwise, <strong> this post may not be relevant to you.</strong>  </div>  </div>
-<p>Packages in Julia rely on other packages, known as their  <em> dependencies</em>. When a package is downloaded, Julia also installs any dependencies required by the package.</p>
-<p>To better understand this process, consider two packages, <code>SomePackage</code> and <code>Statistics</code>. Suppose additionaly that <code>SomePackage</code> uses version 1.2 of <code>Statistics</code> as a dependency. If the developers of <code>Statistics</code> released a new version &#40;let&#39;s say version 1.3&#41;, the authors of <code>SomePackage</code> must update their package to version 1.3 of <code>Statistics</code>. Not doing so will result in Julia impeding the update of <code>Statistics</code> when you execute <code>Pkg.update&#40;&#41;</code>, leaving you stuck on version 1.2. </p>
-<p>This is a consequence of how Julia updates packages. When you execute <code>Pkg.update&#40;&#41;</code>, Julia identifies the oldest versions of each package, including their dependencies. Then, it proceeds to install the oldest version identified. While preventing the update of some package may seem tedious, the aim is to avoid introducing breaking changes in your code. By sticking to the minimum version used as a dependency, Julia ensures that all your projects will still run.</p>
-<p>In this context, you have two options. If you need version 1.3 of Statistics, you&#39;ll have to remove <code>SomePackage</code> by executing <code>Pkg.rm&#40;&quot;SomePackage&quot;&#41;</code>.  Alternatively, you can use version 1.2. of <code>Statistics</code>, and wait until the developers of <code>SomePackage</code> update their dependencies &#40;well-maintained packages are typically updated within a few days&#41;.</p>
-<p>The problem with taking the first path is that <strong> Julia can be somewhat cryptic about what package is preventing the update</strong>. In terms of the example, identifying <code>SomePackage</code> is not trivial, as it may be the dependency of a dependency that is impeding the update. Next, we show how to address this issue.</p>
+      Remark </span>  </div>  <div class=content>     The <strong> script used in this post</strong> can be found <a href="https://github.com/alfaromartino/blog/tree/main//assets/PAGES/04_staticVectors/codeDownload"><strong>here</strong></a> under the name <code>allCode.jl</code>. To replicate the code with the same package versions I used, download instead <code>allCode_withPkg.jl</code>, along with <code>Project.toml</code> and <code>Manifest.toml</code>.<br/><br/> The code has been tested under <code>Julia 1.9</code>.  </div>  </div>
+<section id="introduction" class="scrollspy section-bg-color">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Introduction</h2></p>
+<p>We continue analyzing approaches to enhancing performance in Julia. The focus is in particular on methods that are relatively easy to implement, in the sense of not requiring modifying the code substantially.</p>
+<p>In the previous post, we explored   <span style="color: rgb(73, 113, 153);"><strong> lazy broadcast</strong></span>. This technique is useful when multiple intermediate steps are needed to obtain a final result. In this post, we&#39;ll delve into another approach to improving performance:   <span style="color: rgb(73, 113, 153);"><strong> tuples</strong></span> and   <span style="color: rgb(73, 113, 153);"><strong> static vectors</strong></span>. They are helpful when we work with a collection of objects that have a fixed size and contain a small number of elements. While the exact definition of small is  unspecified, a rough guideline is to consider collections with less than 100 elements. In fact, I recommend using tuples and static vectors only when their benefits are evident, which typically means collection with about 20 elements.</p>
+<p>We&#39;ll illustrate their application through tuples, as static vectors are tuples under the hood. It&#39;s worth remarking that static arrays are more versatile than tuples, as they can accommodate matrices and mutable objects. Nevertheless, we&#39;ll treat them as the same, since these particular uses won&#39;t be part of the post.</p>
+<p>The post&#39;s main conclusion is that tuples/static arrays can be quite powerful. But you need to be particularly careful, as their misuse can introduce type instabilities and hurt performance severely.</p>
 <p>      </div>
     </div>
   </div>
 </section>
-<section id="miscellaneous_optional" class="scrollspy">
+<section id="motivating_example" class="scrollspy">
   <div class="container">
     <div class="row">
       <div class="col-lg- mx-auto">
-        <h2>Miscellaneous (OPTIONAL)</h2></p>
-<p>To facilitate the explanation, let me describe a recent experience I had, after not using one of my computers for a long time. I ran <code>Pkg.update&#40;&#41;</code> and checked the installed versions on my computer by using <code>Pkg.status&#40;&#41;</code>. The results were as follows.</p>
- <div class=" code_box"> <details  open><summary> Code  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
-<pre><code class="language-julia">Pkg.status&#40;&#41;</code></pre>
-<p></div> </div> <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
-    <p> <img style="width:1200px; height:auto; max-width:100%;" src="/blog/assets/PAGES/01_packageUpdate/pics/pkg01.png"/>
-    </p>
-    </div> </div>   </details></div>
-<p>As can be seen, the installed version of <code>DataFrames</code> was not up-to-date, and Julia wouldn&#39;t let me update it in isolation. Moreover, I needed <code>DataFrames</code> for the project I was working on, as the version installed was too old. Thus, I needed to i&#41; identify what packages were preventing the update of <code>DataFrames</code>, ii&#41; and remove those packages. To gain more insight into the packages in conflict, we can use the option <code>outdated</code> of the command <code>Pkg.status</code>. </p>
- <div class=" code_box"> <details  open><summary> Code  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
-<pre><code class="language-julia">Pkg.status&#40;outdated&#61;true&#41;</code></pre>
-<p></div> </div> <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
-    <p> <img style="width:450px; height:auto; max-width:100%;" src="/blog/assets/PAGES/01_packageUpdate/pics/pkg02.png"/>
-    </p>
-    </div> </div>   </details></div>
-<p>Let&#39;s analyze this information with the specific goal of updating <code>DataFrames</code> in mind. The output indicates that the installed version of <code>DataFrames</code> in the system is v0.21.8, whereas the last available version is v1.4.4. Although not important for our purposes, it also reveals that <code>DataFrames</code> is blocking the update of <code>CategoricalArrays</code>. Consequently, once we solve the update of <code>DataFrames</code>, we&#39;ll simultaneously solve the issue with <code>CategoricalArrays</code>.</p>
-<p>However, this information doesn&#39;t indicate what packages are conflicting with the update of <code>DataFrames</code>. To identify this, we&#39;ll use <code>Pkg.add</code>, but with an option that specifies the version of <code>DataFrames</code> to be installed &#40;v1.4.4 in this case&#41;. This won&#39;t allow the update to occur, but it&#39;ll reveal the cause. </p>
- <div class=" code_box"> <details  open><summary> Code  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
-<pre><code class="language-julia">Pkg.add&#40;Pkg.PackageSpec&#40;; name&#61;&quot;DataFrames&quot;, version&#61;&quot;1.4.4&quot;&#41;&#41;</code></pre>
-<p></div> </div> <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
-    <p> <img style="width:900px; height:auto; max-width:100%;" src="/blog/assets/PAGES/01_packageUpdate/pics/pkg03.png"/>
-    </p>
-    </div> </div>   </details></div>
-<p>The output shows that the package <code>TexTables</code> uses <code>DataFrames</code> as a dependency and hasn&#39;t been maintained for a while. By removing it, we&#39;ll be able to update <code>DataFrames</code>.</p>
- <div class=" code_box"> <details  open><summary> Code  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
-<pre><code class="language-julia">Pkg.rm&#40;&quot;TexTables&quot;&#41;
-Pkg.update&#40;&#41;</code></pre>
-<p></div> </div> <div class="img_output_in_modal output_in_modal"><div class="sign_output">Output in REPL </div>   <div class="img_output">
-    <p> <img style="width:450px; height:auto; max-width:100%;" src="/blog/assets/PAGES/01_packageUpdate/pics/pkg04.png"/>
-    </p>
-    </div> </div>   </details></div>
-<p>Notice we executed <code>Pkg.update&#40;&#41;</code> rather than <code>Pkg.update&#40;&quot;DataFrames&quot;&#41;</code>. In this way, other packages that couldn&#39;t be updated will be indirectly updated as well. In our case, this made it possible to update <code>CategoricalArrays</code>, which in turn allowed for the update of <code>Distributions</code> and <code>FixedEffectModels</code>.</p>
+        <h2>Motivating Example</h2></p>
+<p>Let&#39;s concentrate on a concrete situation to facilitate our intuition. Suppose that a university is assessing potential students for their admission. As the university has too many candidates, they decide to perform a screening procedure. This procedure involves the candidates taking a pre-test, and then the university comparing their scores with the admission thresholds of previous years. Only those candidates above the threshold of  <em> at least one</em> previous year will be considered.</p>
+<p>To formalize the situation, let&#39;s create some mock data. The details for constructing the dataset are irrelevant for our purposes, and hence we&#39;ll omit them. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> See the code uploaded if you want to review the procedure.  </span></span>  What matters is that we&#39;ll use two variables, named <code>pre_scores</code> and <code>past_thresholds</code>, which are created through the function <code>generate_data</code>.  </p>
+ <div class=" code_box"> <details  open><summary> Code to Set the Scenario  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">Random.seed&#33;&#40;123&#41;    #setting the seed for reproducibility 
+pre_scores, past_thresholds &#61; generate_variables&#40;nr_years &#61; 20, nr_people &#61; 10_000&#41;
+
+isabove&#40;score, thresholds&#41;  &#61; any&#40;score .&gt; thresholds&#41;
+areabove&#40;score, thresholds&#41; &#61; isabove.&#40;score, Ref&#40;thresholds&#41;&#41;</code></pre> </div> </div>  </details></div>
+<p><code>past_thresholds</code> captures the thresholds of previous years, which is 20 years in our example. In turn, <code>pre_scores</code> represents the scores of the candidates, with 10,000 applicants assumed in our example. Likewise, the function <code>isabove</code> defines the university&#39;s procedure for a single student.  It checks whether the candidate is above the threshold in at least one of the 20 previous years. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> In case you&#39;re not familiar with the function <code>any</code>, it takes a vector as an argument and returns <code>true</code> if at least one of the vector&#39;s elements is <code>true</code>.  </span></span> The function <code>areabove</code> extends this by applying <code>isabove</code> to every candidate. The variables look as follows.</p>
+ <div class=" output_box"> <details  open><summary> Output in REPL  </summary> <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>pre_scores</code> <br/> <pre><code class="plaintext code-output">10000-element Vector{Float64}:
+ 1.8267202241683234
+ 3.161299600281294
+ 4.829613855482266
+ ⋮
+ 2.2488030844480194
+ 2.162875169226787</code></pre> </div><br/><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>past_thresholds</code> <br/> <pre><code class="plaintext code-output">20-element Vector{Float64}:
+ 5.678547557310528
+ 9.325358309487532
+ 5.1380234173752815
+ ⋮
+ 5.682373858994395
+ 5.285879918833311</code></pre> </div></div>  </details></div>
 <p>      </div>
     </div>
   </div>
 </section>
-<section id="conclusion" class="scrollspy section-bg-color">
+<section id="comparing_vector_vs_tuple" class="scrollspy section-bg-color">
   <div class="container">
     <div class="row">
       <div class="col-lg- mx-auto">
-        <h2>Conclusion</h2></p>
-<p>To avoid dealing with issues of this kind &#40;or at least minimizing them&#41;, we should follow the following two steps.</p>
-<p>
-<ol style="list-style-type: lower-roman;"><li style="font-weight:normal" value=" 1">
-<span style="padding-left:0.0em;margin-bottom:-0.8em;display:block;"> Install in <code>Base</code> only those packages that are essential
-</span></li></ol>
+        <h2>Comparing Vector vs Tuple</h2></p>
+<p>Our goal is to compare the performance of the function <code>isabove</code> based on how we handle <code>past_thresholds</code>. In the baseline scenario, we consider <code>past_thresholds</code> as an ordinary vector, and compare it against <code>past_thresholds</code> defined as a tuple/static vector. <code>past_thresholds</code> is well-suited for the use of tuples/static vectors, as it consists of 20 elements and its size will remain fixed throughtout the analysis.</p>
+<p>Since static vectors are ultimately tuples, we exemplify the results by using the latter. The following code snippet reveals a significant increase in performance, even when we consider a relatively low number of candidates. Furthermore, it shows the simplicity of its implementation, requiring only the application of the function <code>Tuple</code>. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> The function <code>ref</code> wrapping each variable is employed to prevent the compiler from optimizing the benchmark. Otherwise, the time reported would be artificially low, because the processor repeats the result rather than the operation. See <a href="https://discourse.julialang.org/t/confusing-behavior-of-btime/82695/2">here</a> for instance.  </span></span></p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> Standard Vector </button>
+    <button class="tablink" data-id=""> Tuple </button>
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">@btime areabove&#40;ref&#40;&#36;pre_scores&#41;, ref&#40;&#36;past_thresholds&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  515.200 μs (20004 allocations: 943.06 KiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">@btime areabove&#40;ref&#40;&#36;pre_scores&#41;, ref&#40;Tuple&#40;&#36;past_thresholds&#41;&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  8.733 μs (24 allocations: 6.03 KiB)
+</code></pre> </div></div> </div> 
+ </div></div>
+<p>  </p></details></div>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="use_of_tuples" class="scrollspy">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Use of Tuples</h2></p>
+<p>In the following, we&#39;ll demonstrate that tuples/static vectors need to be handled carefully, as their incorrect usage can easily introduce type instabilities. Keep in mind that running a type-unstable function in Julia not only reduces performance, but basically kills it. </p>
+<p>The possibility of type instability arises because tuples/static vectors are a data type defined by  <em> both</em> their elements&#39; type &#40;<code>Float64</code> in our example&#41; and the number of elements contained. This determines that a function is type stable if the compiler knows in particular the tuple&#39;s length at the execution time. However, this is not automatically achieved, because Julia chooses a function&#39;s method according to the types of its arguments, not its values.</p>
+<p>To illustrate the problem, let&#39;s consider various approaches to converting <code>past_thresholds</code> into tuples. The first one is simply the approach we used above. The key of this method not creating any issue is that the tuple is passed into <code>areabove</code> as an argument of the function. However, it&#39;d be natural to instead pass <code>past_thresholds</code> as is &#40;i.e., as a vector&#41;, and then convert it into a tuple within the function. This is covered by the codes in Tuple 2 to Tuple 5, where the problem may arise.</p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> Tuple 1 </button>
+    <button class="tablink" data-id=""> Tuple 2  </button>
+    <button class="tablink" data-id=""> Tuple 3 </button>
+    <button class="tablink" data-id=""> Tuple 4 </button>
+    <button class="tablink" data-id=""> Tuple 5 </button>
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">tuple_thresholds &#61; Tuple&#40;past_thresholds&#41;
 
- This means that we should keep a minimum set of officially supported packages in <code>Base</code>. For the rest, we should create environments.</p>
-<p>
-<ol style="list-style-type: lower-roman;"><li style="font-weight:normal" value=" 2">
-<span style="padding-left:0.0em;margin-bottom:-0.8em;display:block;"> Create Environments
-</span></li></ol>
+@btime areabove&#40;ref&#40;&#36;pre_scores&#41;, ref&#40;&#36;tuple_thresholds&#41;&#41; #type stable</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  8.167 μs (3 allocations: 5.55 KiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function areabove&#40;scores, thresholds&#41;
+    tuple_thresholds &#61; Tuple&#40;thresholds&#41;
+    isabove.&#40;scores, Ref&#40;tuple_thresholds&#41;&#41;
+end
 
- Julia lets you create what&#39;s called a  <em> package environment</em>. This allows the user to install a set of packages and versions for each script you&#39;re working on. In this way, each project will have its own set of packages and versions, preventing you from accummulating &quot;legacy&quot; packages that are no longer maintained. You can find more information on package environments in <a href="https://pkgdocs.julialang.org/v1/environments/"><code>Pkg</code>&#39;s official documentation</a>.</p>
+@btime areabove&#40;ref&#40;&#36;pre_scores&#41;, ref&#40;&#36;past_thresholds&#41;&#41; #type unstable</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  23.100 μs (28 allocations: 6.30 KiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function areabove&#40;scores, thresholds&#41; 
+    tuple_thresholds &#61; NTuple&#123;length&#40;thresholds&#41;, eltype&#40;thresholds&#41;&#125;&#40;thresholds&#41;
+    isabove.&#40;scores, Ref&#40;tuple_thresholds&#41;&#41;
+end
+
+@btime areabove&#40;ref&#40;&#36;pre_scores&#41;, ref&#40;&#36;past_thresholds&#41;&#41; #type unstable</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  23.200 μs (11 allocations: 6.25 KiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function areabove&#40;scores, thresholds&#41; 
+    tuple_thresholds &#61; NTuple&#123;20,eltype&#40;thresholds&#41;&#125;&#40;thresholds&#41;
+    isabove.&#40;scores, Ref&#40;tuple_thresholds&#41;&#41;
+end
+
+@btime areabove&#40;ref&#40;&#36;pre_scores&#41;, ref&#40;&#36;past_thresholds&#41;&#41; #type stable</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  8.167 μs (3 allocations: 5.55 KiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function areabove&#40;scores, thresholds, ::Val&#123;N&#125;&#41; where &#123;N&#125;
+    tuple_thresholds &#61; NTuple&#123;N,eltype&#40;thresholds&#41;&#125;&#40;thresholds&#41;
+    isabove.&#40;scores, Ref&#40;tuple_thresholds&#41;&#41;
+end
+
+@btime areabove&#40;ref&#40;&#36;pre_scores&#41;, ref&#40;&#36;past_thresholds&#41;, Val&#40;length&#40;ref&#40;&#36;past_thresholds&#41;&#41;&#41;&#41; #type stable</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  8.333 μs (3 allocations: 5.55 KiB)
+</code></pre> </div></div> </div> 
+ </div></div>
+<p>  </p></details></div>
+<p><strong> Tuple 2</strong> creates a type instability because the compiler analyzes the function, but doesn&#39;t figure out in advance the number of elements in <code>tuple_thresholds</code>. Therefore, it treats the tuple as potentially comprising any number of elements. <strong> Tuple 3</strong> reveals that the issue is not solved by explicitly indicating the length and type of its elements—Julia doesn&#39;t dispatch the method by values, but by types. This means that Julia doesn&#39;t choose the function&#39;s method by computing <code>length&#40;thresholds&#41;</code> beforehand. </p>
+<p><strong> Tuple 4</strong> shows an easy way to restore type stability, which consists in directly indicating the number of elements when creating the tuple. This also demonstrates that the problem is not due to the type of the tuple&#39;s elements: we can still use <code>eltype&#40;thresholds&#41;</code>, as the compiler knows the type of <code>thresholds</code> in the function <code>areabove</code>. However, the solution is not practical, because it requires indicating the tuple&#39;s length in advance. </p>
+<p>This leads us to <strong> Tuple 5</strong>, which is the solution generally used in practice. It uses <code>Val</code> as an artifact for dispatching the method by values. Expressed in words, this entails using <code>Val&#123;N&#125;</code> as a function&#39;s argument, where <code>N</code> is the tuple&#39;s length. In this way, the compiler knows the number of elements in the tuple, and can dispatch the method accordingly. Notice that <code>Val</code> is called in the function by using curly brackets &#40;i.e., <code>Val&#40;length&#40;past_thresholds&#41;&#41;</code>&#41;. </p>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="when_the_type_instabilities_created_constitute_a_serious_concern" class="scrollspy section-bg-color">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>When the Type Instabilities Created Constitute a Serious Concern?</h2></p>
+<p>If you observe the running times of Tuple 2 and 3 above, you&#39;ll notice that the type-instability created isn&#39;t a significant problem. However, this only happens because we&#39;re immediately passing the tuple to the function <code>isabove</code>, and type instabilities do not arise if we use a tuple/static vector as a function&#39;s argument.</p>
+<p>This is part of a more general technique called <strong> barrier functions</strong>. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> See <a href="https://docs.julialang.org/en/v1/manual/performance-tips/#kernel-functions">here</a> for the official documentation&#39;s explanation.  </span></span> It entails the presence of an &quot;inner&quot; function solving the type instability of the &quot;parent&quot; function.</p>
+<p>The use of barrier functions allows the user to maintain code readibility by avoiding the use of <code>Val</code>. However, it&#39;s crucial to keep in mind that barrier functions may not always be a suitable solution, especially if the type instability remains unsolved before a tight loop. This scenario is demonstrated in the following code, where we simplify the illustration by considering an abstract example. </p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> Code not Adapted </button>
+    <button class="tablink" data-id=""> With Val</button>
+    <button class="tablink" data-id=""> With Barrier Function </button>
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">Random.seed&#33;&#40;123&#41;    #setting the seed for reproducibility 
+x &#61; rand&#40;10&#41;
+
+function example1&#40;x&#41; 
+    tuple_x &#61; Tuple&#40;x&#41;
+
+    for _ in 1:100_000
+        log.&#40;tuple_x&#41; 
+    end
+end
+
+@btime example1&#40;ref&#40;&#36;x&#41;&#41;    # type-unstable</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  13.301 ms (300011 allocations: 27.47 MiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">Random.seed&#33;&#40;123&#41;    #setting the seed for reproducibility 
+x &#61; rand&#40;10&#41;
+
+function example2&#40;x, ::Val&#123;N&#125;&#41; where &#123;N&#125;
+    tuple_x &#61; NTuple&#123;N,eltype&#40;x&#41;&#125;&#40;x&#41;   
+
+    for _ in 1:100_000
+        log.&#40;tuple_x&#41; 
+    end
+end
+
+@btime example2&#40;ref&#40;&#36;x&#41;, Val&#40;length&#40;ref&#40;&#36;x&#41;&#41;&#41;&#41;  # type-stable</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  2.544 ms (0 allocations: 0 bytes)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">Random.seed&#33;&#40;123&#41;    #setting the seed for reproducibility 
+x &#61; rand&#40;10&#41;
+
+function barrier_function&#40;x&#41; 
+    for _ in 1:100_000
+        log.&#40;x&#41; 
+    end
+end
+
+function example3&#40;x&#41; 
+    tuple_x &#61; Tuple&#40;x&#41;
+    barrier_function&#40;tuple_x&#41;
+end
+   
+@btime example3&#40;ref&#40;&#36;x&#41;&#41;  # type-unstable but minimum penalty</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  2.543 ms (11 allocations: 256 bytes)
+</code></pre> </div></div> </div> 
+ </div></div>
+<p>  </p></details></div>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="static_vectors" class="scrollspy">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Static Vectors</h2></p>
+<p>We conclude this post by demonstrating how to avoid type instabilities when using static vectors. Essentially, the underlying principles resemble those for tuples, but the syntax for creating static vectors differs.</p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> SVector 1 </button>
+    <button class="tablink" data-id=""> SVector 2  </button>
+    <button class="tablink" data-id=""> SVector 3 </button>    
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function with_SVector_barrier&#40;scores, thresholds&#41;
+    sthresholds &#61; SVector&#40;thresholds...&#41;
+    areabove&#40;pre_scores, sthresholds&#41;
+end
+
+@btime with_SVector_barrier&#40;ref&#40;&#36;pre_scores&#41;, ref&#40;&#36;past_thresholds&#41;&#41; #type unstable</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  20.200 μs (26 allocations: 6.38 KiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function with_SVector_val&#40;scores, thresholds, ::Val&#123;N&#125;&#41; where &#123;N&#125;
+    sthresholds &#61; SVector&#123;N, eltype&#40;thresholds&#41;&#125;&#40;thresholds&#41;
+    areabove&#40;scores, sthresholds&#41;
+end
+
+@btime with_SVector_val&#40;ref&#40;&#36;pre_scores&#41;, ref&#40;&#36;past_thresholds&#41;, Val&#40;length&#40;ref&#40;&#36;past_thresholds&#41;&#41;&#41;&#41; #type stable</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  19.500 μs (3 allocations: 5.55 KiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function with_SVector_macro&#40;scores, thresholds&#41; 
+    sthresholds &#61; @SVector &#91;thresholds&#91;i&#93; for i in eachindex&#40;past_thresholds&#41;&#93;
+    areabove&#40;scores, sthresholds&#41;
+end
+
+@btime with_SVector_macro&#40;ref&#40;&#36;pre_scores&#41;, ref&#40;&#36;past_thresholds&#41;&#41; #type stable</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  19.500 μs (3 allocations: 5.55 KiB)
+</code></pre> </div></div> </div> 
+ </div></div>
+<p>  </p></details></div>
+<p>Notice in particular how a static vector is created in <code>SVector 3</code>. This involves specifying the vector&#39;s range by using either a global variable &#40;as in our example with <code>past_thresholds</code>&#41; or a literal value &#40;e.g., 20&#41;—the package <code>StaticArrays</code> dictates that the range must be specified in this manner.</p>
 <p>      </div>
     </div>
   </div>
@@ -1854,9 +2028,9 @@ Pkg.update&#40;&#41;</code></pre>
 <footer class="py-1">    
     <!-- <p class="m-0"> -->
     <div class="container">
-       <span class="left-text"><a href="/blog/PAGES\04_staticVectors" class="prevPage"><img src="/blog/assets/icons/prev-page.png"
+       <span class="left-text"><a href="/blog/PAGES\03_LazyArrays" class="prevPage"><img src="/blog/assets/icons/prev-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"> Previous Post</a></span>
-       <span class="right-text"><a href="/blog/PAGES\02_worldHeatmaps" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
+       <span class="right-text"><a href="/blog/PAGES\01_packageUpdate" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"></a>    </span>              
     <span class="center-text">  © Martin Alfaro <br>Website Last Modified on June 19, 2023 </span>  
   </div>
@@ -2295,21 +2469,33 @@ window.onkeydown = function(event) {
 <nav class="navbar navbar-dark">
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
     <span class="navbar-toggler-icon"></span>
-    <a class="navbar-brand">Conflicting Packages Preventing Updating</a>
+    <a class="navbar-brand">Performance Improvements in Julia (Part 2): Tuples and Static Arrays</a>
   </button>
   <div class="collapse navbar-collapse" id="collapsibleNavbar">
     <ul class="navbar-nav">
       
       <li class="nav-item">
-        <a class="nav-link" href="#description_of_the_issue_covered" data-offset="-40">Description of the Issue Covered</a>
+        <a class="nav-link" href="#introduction" data-offset="-40">Introduction</a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link" href="#miscellaneous_optional" data-offset="-40">Miscellaneous (OPTIONAL)</a>
+        <a class="nav-link" href="#motivating_example" data-offset="-40">Motivating Example</a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link" href="#conclusion" data-offset="-40">Conclusion</a>
+        <a class="nav-link" href="#comparing_vector_vs_tuple" data-offset="-40">Comparing Vector vs Tuple</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#use_of_tuples" data-offset="-40">Use of Tuples</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#when_the_type_instabilities_created_constitute_a_serious_concern" data-offset="-40">When the Type Instabilities Created Constitute a Serious Concern?</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#static_vectors" data-offset="-40">Static Vectors</a>
       </li>
       
     </ul>
