@@ -16,15 +16,7 @@
   
 
   <!-- FRANKLIN DEFINED - LATEX AND CODE HIGHLIGHTS -->
-   <!-- HERE WE ADD ANY CSS ELEMENT WE WANT TO ADD
-(don't confuse head with header, head applies globally) -->
-
-<link rel="stylesheet" href="/blog/libs/katex/katex.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/aaaakshat/cm-web-fonts@latest/fonts.css"></link>
-
-<link rel="stylesheet" 
-href="https://fonts.googleapis.com/css?family=Open+Sans"></link>
-<!-- Montserrat|Roboto|Lato|Raleway|Work+Sans|Raleway -->     
+  
    <link rel="stylesheet" href="/blog/libs/highlight/styles/vs_myversion.css">
    
 
@@ -1319,7 +1311,7 @@ h1{
   
 
 
-    <h1>Performance Improvements in Julia (Part 1): Lazy Broadcasting</h1>    
+    <h1>Performance Improvements in Julia (Part 3): Reducing Allocations from Slices</h1>    
     <div class="lead"> </div>
     
     
@@ -1669,196 +1661,196 @@ h1{
 <div class="franklin-content">
  <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
       <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
-      Remark </span>  </div>  <div class=content>     The <strong> script used in this post</strong> can be found <a href="https://github.com/alfaromartino/blog/tree/main//assets/PAGES/03_LazyArrays/codeDownload"><strong>here</strong></a> under the name <code>allCode.jl</code>. To replicate the code with the same package versions I used, download <code>allCode_withPkg.jl</code> instead, along with <code>Project.toml</code> and <code>Manifest.toml</code>.<br/><br/> The benchmarks in this post wrap each variable into the function <code>ref&#40;x&#41; &#61; &#40;Ref&#40;x&#41;&#41;&#91;&#93;</code>. This prevents the computer from realizing that we&#39;re repeating the same calculation. Otherwise, <code>@btime</code> ends up repeating the result after a few iterations, without performing any computation. We also interpolate the variables with <code>&#36;</code> to avoid a function&#39;s arguments being interpreted as a global variable.<br/><br/> The code has been tested under <code>Julia 1.9</code>.  </div>  </div>
+      Remark </span>  </div>  <div class=content>     The <strong> script used in this post</strong> can be found <a href="https://github.com/alfaromartino/blog/tree/main//assets/PAGES/05_allocations/codeDownload"><strong>here</strong></a> under the name <code>allCode.jl</code>. To replicate the code with the same package versions I used, download <code>allCode_withPkg.jl</code> instead, along with <code>Project.toml</code> and <code>Manifest.toml</code>.<br/><br/> The benchmarks in this post wrap each variable into the function <code>ref&#40;x&#41; &#61; &#40;Ref&#40;x&#41;&#41;&#91;&#93;</code>. This prevents the computer from realizing that we&#39;re repeating the same calculation. Otherwise, <code>@btime</code> ends up repeating the result after a few iterations, without performing any computation. We also interpolate the variables with <code>&#36;</code> to avoid a function&#39;s arguments being interpreted as a global variable.<br/><br/> The code has been tested under <code>Julia 1.9</code>.  </div>  </div>
 <section id="introduction" class="scrollspy section-bg-color">
   <div class="container">
     <div class="row">
       <div class="col-lg- mx-auto">
         <h2>Introduction</h2></p>
-<p>Readability and performance are two crucial features in coding. However, they&#39;re not always compatible, leading you to prioritize one over the other. In this post, we&#39;ll explore a tool that enables you to enhance performance without compromising readability: lazy broadcasting.</p>
-<p>In programming, the term   <span style="color: rgb(73, 113, 153);"><strong> lazy</strong></span> refers to postponing the execution of some code until the result is required. The opposite is   <span style="color: rgb(73, 113, 153);"><strong> eager</strong></span>, which means executing the code as soon as the computer reads it. When it comes to broadcasting, Julia performs it eagerly by default. This post will show how lazy broadcasting can enhance performance. </p>
-<p>Lazy broadcasting is useful for computing <strong> an output that requires several intermediate steps</strong>, as long as intermediate results are unimportant and we don&#39;t need to keep them. This improves performance by  <em> i)</em> avoiding memory allocations for intermediate results, <span class="footn supr">&#91;note&#93;  <span class="footn_text"> Strictly speaking, we&#39;re referring to  <em> heap allocations</em>. The concept involves several technical aspects that are not necessary for our purposes. See <a href="https://docs.julialang.org/en/v1.9/manual/performance-tips/#Measure-performance-with-&#91;@time&#93;&#40;@ref&#41;-and-pay-attention-to-memory-allocation">here</a> if you want to know why this matter for performance, and <a href="https://jkrumbiegel.com/pages/2020-10-31-tuples-and-vectors/#stack-and-heap">here</a> for an intuitive explanation of  <em> heap</em> and  <em> stack</em> allocations.  </span></span>  and  <em> ii)</em> combining operations into a single one, which enables Julia to perform further optimizations.</p>
+<p>This is the 3rd part on fixes to enhance performance in Julia. The focus has been in particular on methods that are relatively easy to implement. The previous two parts covered lazy broadcast and static vectors. This part discusses how to handle   <span style="color: rgb(73, 113, 153);"><strong> slices of vectors</strong></span>. </p>
+<p>Given a vector <code>x</code>, a slice of a vector is defined as <code>x&#91;&lt;some index of elements&gt;&#93;</code>, allowing the user to access a subset of <code>x</code>&#39;s elements. Remarkably, accessing only one element, such as <code>x&#91;3&#93;</code>, doesn&#39;t allocate memory. On the contrary, if the slice contains more than one element, Julia creates a copy of it by default, resulting in memory allocation.</p>
+<p>The simplest and most general solution to address this is to work with   <span style="color: rgb(73, 113, 153);"><strong> views of slices</strong></span>. A view is a lightweight object that references the original object, avoiding the creation of a new object to store the subset of elements. Due to this, it doesn&#39;t allocate memory.</p>
+<p>It&#39;s worth remarking that<strong> reducing memory allocation is neither necessary nor sufficient for increasing speed</strong>—it&#39;s not uncommon to have a function allocating more memory, yet being faster. The trade-off between speed and memory allocation is complex. Broadly speaking, copying data incurs additional CPU instructions to locate a new object in memory. However, it also stores elements in a contiguous memory block, allowing the CPU to access elements faster.</p>
+<p>From a practical standpoint, <strong> excessive memory allocation is a warning sign</strong>, hinting at potential issues with the code. </p>
 <p>      </div>
     </div>
   </div>
 </section>
-<section id="motivating_example" class="scrollspy">
+<section id="slices_of_vectors_and_their_indices" class="scrollspy">
   <div class="container">
     <div class="row">
       <div class="col-lg- mx-auto">
-        <h2>Motivating Example</h2></p>
-<p>To facilitate the explanation, let&#39;s consider a concrete example. This is based on Economics, but <strong> don't worry if you're not an economist, as it doesn't require any specialized knowledge</strong>. </p>
-<p>The goal is to compute a company&#39;s profit for a given price of its product. Profit is defined as the difference between revenue and cost. In turn, revenue is the product of price and quantity, whereas cost is the cost per unit times the quantity produced. Therefore, if our aim is to compute profits for some given prices, we need to <strong> compute quantities, revenues, and costs as intermediate steps</strong>. </p>
-<p>Formally, given some price, we need to compute the quantity demanded: <a id="eq1" class="anchor"></a><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mrow><mo fence="true">(</mo><mi>p</mi><mo fence="true">)</mo></mrow><mo>:</mo><mo>=</mo><mn>10</mn><mo>−</mo><mn>2.1</mn><mo>×</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">
-q\left(p\right):=10-2.1\times p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">q</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord mathdefault">p</span><span class="mclose delimcenter" style="top:0em;">)</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">:</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">.</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">p</span></span></span></span></span></p>
-<p>which makes it possible to compute the revenue and costs: <a id="eq2" class="anchor"></a><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mrow><mo fence="true">(</mo><mi>q</mi><mo separator="true">,</mo><mi>p</mi><mo fence="true">)</mo></mrow><mo>:</mo><mo>=</mo><mi>q</mi><mo>×</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">
-r\left(q,p\right):=q\times p
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord mathdefault" style="margin-right:0.03588em;">q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">p</span><span class="mclose delimcenter" style="top:0em;">)</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">:</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">q</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">p</span></span></span></span></span> <a id="eq3" class="anchor"></a><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mrow><mo fence="true">(</mo><mi>q</mi><mo fence="true">)</mo></mrow><mo>:</mo><mo>=</mo><mn>1.1</mn><mo>×</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">
-c\left(q\right):=1.1\times q
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">c</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord mathdefault" style="margin-right:0.03588em;">q</span><span class="mclose delimcenter" style="top:0em;">)</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">:</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">.</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">q</span></span></span></span></span></p>
-<p>providing us with the profit <a id="eq4" class="anchor"></a><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mrow><mo fence="true">(</mo><mi>r</mi><mo separator="true">,</mo><mi>c</mi><mo fence="true">)</mo></mrow><mo>:</mo><mo>=</mo><mi>r</mi><mo>−</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">
-\pi\left(r,c\right):=r-c
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">π</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">c</span><span class="mclose delimcenter" style="top:0em;">)</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">:</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">c</span></span></span></span></span></p>
-<p>Our task at hand is to compute <span class="eqref">(<a href="#eq4">4</a>)</span>, with <span class="eqref">(<a href="#eq1">1</a>)</span>, <span class="eqref">(<a href="#eq2">2</a>)</span>, and <span class="eqref">(<a href="#eq3">3</a>)</span> as intermediate results we won&#39;t eventually need.</p>
-<p>      </div>
-    </div>
-  </div>
-</section>
-<section id="comparing_approaches" class="scrollspy section-bg-color">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg- mx-auto">
-        <h2>Comparing Approaches</h2></p>
-<p>The following packages are required for the code in this post. Note in particular the use of <code>LazyArrays</code>, which is what allows us to use lazy broadcasting.  <div class=" code_box"> <details  open><summary> Packages for the Post  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">using DataFrames, Distributions, Random, BenchmarkTools
-using LazyArrays</code></pre> </div> </div>  </details></div></p>
-<p>The code below generates mock data for prices. It additionally creates functions in Julia representing equations <span class="eqref">(<a href="#eq1">1</a>)</span>, <span class="eqref">(<a href="#eq2">2</a>)</span>, <span class="eqref">(<a href="#eq3">3</a>)</span>, and <span class="eqref">(<a href="#eq4">4</a>)</span>.  <div class=" code_box"> <details  open><summary> Mock Data and Functions  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">Random.seed&#33;&#40;123&#41;        # setting the seed for reproducibility
-price_vector             &#61; 2 .* rand&#40;1_000&#41;
-
-quantity&#40;price&#41;          &#61; 10 - 2.1 * price
-revenue&#40;quantity, price&#41; &#61; quantity * price
-cost&#40;quantity&#41;           &#61; 1.1 * quantity
-profit&#40;revenue, cost&#41;    &#61; revenue - cost</code></pre> </div> </div>  </details></div></p>
-<p>We now compare the performance of two broadcasting approaches. The first one is the default approach, which performs broadcasting eagerly. The second one performs the broadcast lazily, which we indicate by adding the macro <code>@~</code>. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> The benchmarks in this post wrap each variable into the function <code>ref&#40;x&#41; &#61; &#40;Ref&#40;x&#41;&#41;&#91;&#93;</code>. This prevents the computer from realizing that we&#39;re repeating the same calculation. Otherwise, <code>@btime</code> would directly repeat stating the result after a few iterations rather than computing it, thus distorting the comparison.  </span></span> </p>
+        <h2>Slices of Vectors and their Indices</h2></p>
+<p>Let&#39;s consider the following example to create a slice of some vector <code>x</code>.</p>
  <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
  <div class="tab_wrapper">
  <div class="tab_code_links">
-    <button class="tablink first_tab active" data-id=""> Eager Broadcast (default)</button>
-    <button class="tablink" data-id=""> Lazy Broadcast </button>
+    <button class="tablink first_tab active" data-id=""> Vector as Index </button>
+    <button class="tablink" data-id=""> Range as Index</button>
+    <button class="tablink" data-id=""> View </button>
 </div><div data-id="" class="tabcontent active">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function compute_profit1&#40;price&#41;
-    compute_quantity &#61; quantity.&#40;price&#41;
-    compute_revenue  &#61; revenue.&#40;compute_quantity, price&#41;
-    compute_cost     &#61; cost.&#40;compute_quantity&#41;
-    
-    profit.&#40;compute_revenue, compute_cost&#41;     
-end
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; rand&#40;10&#41; # vector for testing
+foo1&#40;x&#41; &#61; x&#91;&#91;1,2&#93;&#93;
 
-@btime compute_profit1&#40;ref&#40;&#36;price_vector&#41;&#41;;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.070 μs (4 allocations: 31.75 KiB)
+@btime foo1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  29.849 ns (2 allocations: 160 bytes)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function compute_profit2&#40;price&#41;
-    compute_quantity &#61; @~ quantity.&#40;price&#41;
-    compute_revenue  &#61; @~ revenue.&#40;compute_quantity, price&#41;
-    compute_cost     &#61; @~ cost.&#40;compute_quantity&#41;
-    
-    profit.&#40;compute_revenue, compute_cost&#41;
-end
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; rand&#40;10&#41; # vector for testing
+foo2&#40;x&#41; &#61; x&#91;1:2&#93;
 
-@btime compute_profit2&#40;ref&#40;&#36;price_vector&#41;&#41;;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  233.333 ns (1 allocation: 7.94 KiB)
+@btime foo2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  16.132 ns (1 allocation: 80 bytes)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; rand&#40;10&#41; # vector for testing
+foo3&#40;x&#41; &#61; view&#40;x, 1:2&#41;
+
+@btime foo3&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  1.700 ns (0 allocations: 0 bytes)
 </code></pre> </div></div> </div> 
  </div></div>
 <p>  </p></details></div>
-<p>As 1 μs is 1,000 ns, the lazy approach is faster. This occurs because the default broadcasting performs eager computations. Thus, <code>compute_profit1</code> stores the results for quantities, revenue, and cost, and then computes the profit with those results. The procedure ends up performing 4 allocations: three for the intermediate steps, and one for the output of interest &#40;i.e., profit&#41;. </p>
-<p>In contrast, <code>compute_profit2</code> indicates Julia that quantities, revenue, and cost should be calculated lazily. It&#39;s like saying to Julia: &quot;do not compute anything at this point, let me only describe the operation involved&quot;. This allows Julia to avoid the allocations for the intermediate results, fuse all the operations into a single one, and provide the profit as the outcome. This explains why we&#39;ve reduced 4 allocations to 1, where the only allocation is storing the vector of profits and hence is unavoidable. </p>
- <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
-      <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
-      Remark </span>  </div>  <div class=content>     Notice that the allocations would&#39;ve occurred even if we hadn&#39;t stored the results in variables. This is because any expression that relies on broadcasting allocates, even if the final result is a scalar &#40;which does not allocate&#41;. The following example demonstrates this.</p>
-<p> <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+<p>The first tab shows that indexing a slice through a vector results in two allocations: one for the slice and another for the index. Instead, the code in the second tab eliminates the latter allocation, by using a range as the slice&#39;s index. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> The same is true for for-loops, where using a range or <code>eachindex</code> prevents allocating the object through which we iterate.  </span></span>  Nonetheless, there&#39;s still one allocation involved, which corresponds to the slice itself. To avoid it, we can combine a range for the slice&#39;s index with the function <code>view</code>. By doing so, the slice referencesthe original elements of <code>x</code>, resulting in no memory allocations.</p>
+<p>It&#39;s important to note that the application of these different approaches may not always yield a noticeable difference. If we&#39;re only using that code once, adding <code>view</code> may reduce code readability without providing significant benefits. However, if that code snippet is eventually called within a for-loop, the impact can be substantial. To see this, consider the following example, where each of the functions in the example is repeatedly used.</p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
  <div class="tab_wrapper">
  <div class="tab_code_links">
-    <button class="tablink first_tab active" data-id=""> Eager Broadcast (default)</button>
-    <button class="tablink" data-id=""> Lazy Broadcast </button>
+    <button class="tablink first_tab active" data-id=""> Vector as Index </button>
+    <button class="tablink" data-id=""> Range as Index</button>
+    <button class="tablink" data-id=""> View </button>
 </div><div data-id="" class="tabcontent active">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x        &#61; &#91;2,3,4&#93;
-eager&#40;x&#41; &#61; sum&#40;x .* x .* log.&#40;x&#41;&#41;
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function example1&#40;x&#41;
+    for _ in 1:10_000
+        foo1&#40;x&#41;
+    end
+end
 
-@btime eager&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  30.955 ns (1 allocation: 80 bytes)
+@btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  299.900 μs (20000 allocations: 1.53 MiB)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; &#91;2,3,4&#93;
-lazy&#40;x&#41; &#61; sum&#40;@~&#40;x .* x .* log.&#40;x&#41;&#41;&#41;
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function example2&#40;x&#41;
+    for _ in 1:10_000
+        foo2&#40;x&#41;
+    end
+end
 
-@btime lazy&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  29.819 ns (0 allocations: 0 bytes)
+@btime example2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  146.900 μs (10000 allocations: 781.25 KiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function example3&#40;x&#41;
+    for _ in 1:10_000
+        foo3&#40;x&#41;
+    end
+end
+
+@btime example3&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  1.930 μs (0 allocations: 0 bytes)
 </code></pre> </div></div> </div> 
  </div></div>
-<p>  </p></details></div>  </div>  </div>
+<p>  </p></details></div>
 <p>      </div>
     </div>
   </div>
 </section>
-<section id="when_to_use_lazy_broadcasts" class="scrollspy">
+<section id="macros_for_views" class="scrollspy section-bg-color">
   <div class="container">
     <div class="row">
       <div class="col-lg- mx-auto">
-        <h2>When to Use Lazy Broadcasts?</h2> </p>
-<p>A lazy approach is only preferred when the intermediate results aren&#39;t needed for any other computation. If, for instance, quantities are necessary to computer other results besides profits, storing them will likely improve performance—the detrimental effect of storing the result would be more than compensated for by avoiding the computation of quantities multiple times. </p>
-<p>Furthermore, lazy broadcasting should only be applied to performance-critical parts of the code, or when a function is repeatedly used across your projects. Otherwise, the time spent on writing the code might not be worth the performance gain.</p>
-<p>Lazy broadcasting could also be useful if you have a tight loop or, in the same vein, for computations on subgroups in a DataFrame. To illustrate this, let&#39;s consider a hypothetical dataset containing information on companies, spanning several years and countries. In particular, let&#39;s create some mock data for years 2000-2020 and 50 countries, each with 10,000 companies. This results in a DataFrame with 10,500,000 observations. If you&#39;re interested in seeing how the data was constructed, you can open the code below.</p>
- <div class=" code_box"> <details  closed><summary> Mock Data  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">#80-20 Pareto Rule within country-year
-prices_random&#40;nr_firms, nr_countries&#41; &#61; &#91;rand&#40;Pareto&#40;log&#40;4, 5&#41;&#41;, nr_firms&#41; for _ in 1:nr_countries&#93; 
-
-function generate_yearly_data&#40;year, nr_firms, nr_countries&#41;
-    revenue &#61; prices_random&#40;nr_firms, nr_countries&#41;
-    dff     &#61; DataFrame&#40;country&#61;1:nr_countries, price &#61; revenue&#41;
-    dff     &#61; flatten&#40;dff,2&#41;
-
-    dff.firm  &#61; repeat&#40;1:nr_firms, outer &#61; nr_countries&#41;
-    dff.year  .&#61; year
-    return dff
-end
-
-
-function generate_data&#40;nr_years, nr_firms, nr_countries&#41;    
-    dff &#61; generate_yearly_data&#40;2000, nr_firms, nr_countries&#41;
-    for year in 2001:nr_years-1&#43;2001
-        append&#33;&#40;dff, generate_yearly_data&#40;year, nr_firms, nr_countries&#41;&#41; 
-    end   
-
-    return select&#33;&#40;dff, &#91;:year, :country, :firm, :price&#93;&#41;
-end
-
-dff &#61; generate_data&#40;nr_years, nr_firms, nr_countries&#41; #it generates the DataFrame</code></pre> </div> </div>  </details></div>
-<p>Ultimately, what matters is that the DataFrame looks like the following.</p>
- <div class=" output_box"> <details  open><summary> Output in REPL  </summary> <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> dff&#91;1:5,:&#93; <br/> <pre><code class="plaintext code-output">5×4 DataFrame
- Row │ year   country  firm   price
-     │ Int64  Int64    Int64  Float64
-─────┼────────────────────────────────
-   1 │  2000        1      1  2.75317
-   2 │  2000        1      2  4.54952
-   3 │  2000        1      3  2.38347
-   4 │  2000        1      4  1.35309
-   5 │  2000        1      5  1.72773
-</code></pre> </div></div>  </details></div>
-<p>Suppose we want to compute the mean profit for each country and year. This requires performing the same calculation <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>r</mi><mi mathvariant="normal">_</mi><mi>c</mi><mi>o</mi><mi>u</mi><mi>n</mi><mi>t</mi><mi>r</mi><mi>i</mi><mi>e</mi><mi>s</mi><mo>×</mo><mi>n</mi><mi>r</mi><mi mathvariant="normal">_</mi><mi>y</mi><mi>e</mi><mi>a</mi><mi>r</mi><mi>s</mi><mo>=</mo><mn>1</mn><mo separator="true">,</mo><mn>050</mn></mrow><annotation encoding="application/x-tex">nr\_countries\times nr\_years=1,050</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9695199999999999em;vertical-align:-0.31em;"></span><span class="mord mathdefault">n</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault">u</span><span class="mord mathdefault">n</span><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault">s</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.74056em;vertical-align:-0.31em;"></span><span class="mord mathdefault">n</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mord mathdefault">e</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">s</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mord">5</span><span class="mord">0</span></span></span></span> times. In contrast to the previous example, each firm&#39;s profit is not of interest anymore, and so we can avoid storing this result too. The following comparison shows an eager and a lazy broadcast approach for computing the mean profit. </p>
+        <h2>Macros for Views</h2></p>
+<p>Adding <code>view</code> to the code can quickly become tedious, especially when dealing with functions that involve multiple slices. Due to this, Julia provides some macros to facilitate its usage. One of these macros is <code>@view</code>, which creates a view of the object immediately following it. The following code snippet demonstrates its use.</p>
+ <div class=" code_box"> <details  open><summary> &#39;@view&#39; macro  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia"># macro &#39;@view&#39;
+foo&#40;x&#41; &#61; @view&#40;x&#91;1:2&#93;&#41; &#43; @view&#40;x&#91;3:4&#93;&#41;</code></pre> </div> </div>  </details></div>
+<p>I don&#39;t find this macro particularly useful, as it requires more typing compared to the function <code>view</code>. On the contrary, the macro <code>@views</code> is quite convenient, as it creates a view for each slice within an expression. This feature is particularly useful for functions, as the following example demonstrates.</p>
  <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
  <div class="tab_wrapper">
  <div class="tab_code_links">
-    <button class="tablink first_tab active" data-id=""> Eager Broadcast (default)</button>
-    <button class="tablink" data-id=""> Lazy Broadcast </button>
+    <button class="tablink first_tab active" data-id=""> Without @views </button>
+    <button class="tablink" data-id=""> With @views </button>
 </div><div data-id="" class="tabcontent active">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">dfg &#61; groupby&#40;dff,&#91;:country,:year&#93;&#41;
-
-function average_profit1&#40;price&#41;
-    compute_quantity &#61; quantity.&#40;price&#41;
-    compute_revenue  &#61; revenue.&#40;compute_quantity, price&#41;
-    compute_cost     &#61; cost.&#40;compute_quantity&#41;    
-    compute_profit   &#61; profit.&#40;compute_revenue, compute_cost&#41;
-
-    mean&#40;compute_profit&#41;
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function example1&#40;x&#41;
+    output &#61; x&#91;1:2&#93; .&#43; x&#91;3:4&#93; .* x&#91;5:6&#93;
+    
+    return output .&#43; x&#91;7:8&#93; .* x&#91;9:10&#93;
 end
 
-@btime transform&#40;ref&#40;dfg&#41;, ref&#40;:price&#41; &#61;&gt; average_profit1 &#61;&gt; :profit&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  233.661 ms (9203 allocations: 1.10 GiB)
+x &#61; rand&#40;10&#41; # vector for testing
+@btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  101.810 ns (7 allocations: 560 bytes)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">dfg &#61; groupby&#40;dff,&#91;:country,:year&#93;&#41;
-
-function average_profit2&#40;price&#41;
-    compute_quantity &#61; @~ quantity.&#40;price&#41;
-    compute_revenue  &#61; @~ revenue.&#40;compute_quantity, price&#41;
-    compute_cost     &#61; @~ cost.&#40;compute_quantity&#41;
-    compute_profit   &#61; @~ profit.&#40;compute_revenue, compute_cost&#41;
-
-    mean&#40;compute_profit&#41;
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">@views function example2&#40;x&#41;
+    output &#61; x&#91;1:2&#93; .&#43; x&#91;3:4&#93; .* x&#91;5:6&#93;
+    
+    return output .&#43; x&#91;7:8&#93; .* x&#91;9:10&#93;
 end
 
-@btime transform&#40;ref&#40;dfg&#41;, ref&#40;:price&#41; &#61;&gt; average_profit2 &#61;&gt; :profit&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  164.001 ms (794 allocations: 801.15 MiB)
+x &#61; rand&#40;10&#41; # vector for testing
+@btime example2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  29.548 ns (2 allocations: 160 bytes)
+</code></pre> </div></div> </div> 
+ </div></div>
+<p>  </p></details></div>
+<p>The function without <code>@views</code> has 7 allocations: One for <code>output</code>, another for the vector in the <code>return</code> statement, and 5 allocations from the slices. Instead, by adding <code>@views</code> before the definition of the function, each slice is called through a view. This results in the elimination of the 5 allocations from the slices, reducing the total allocations to 2.</p>
+<p>Notice that the use of <code>@views</code> can be applied to any expression, not just functions. For instance, the following code creates views of each slice in a for-loop.</p>
+ <div class=" code_box"> <details  open><summary> @views In For-Loops  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">function example&#40;x&#41;
+    output &#61; 0.0
+
+    @views for i in 1:100
+        intermediate_result &#61; x&#91;1:2&#93; .&#43; x&#91;3:4&#93; .* x&#91;5:6&#93; ./ i
+        output              &#61; sum&#40;intermediate_result&#41;
+    end
+
+    return output
+end
+
+x &#61; rand&#40;10&#41; # vector for testing
+@btime example&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.410 μs (100 allocations: 7.81 KiB)
+</code></pre> </div></div> </div>   </details></div>
+<p>The code above eliminates the memory allocation for each slice. As for the 100 allocations we observe, they occur due to the computation of <code>intermediate_result</code> in each iteration. </p>
+<p>This example can also serve as an illustration of the methods presented in this blog so far. First, we can avoid the 100 allocations by converting <code>intermediate_result</code> into a lazy array. Second, we can speed up the computations further by using static vectors. This approach is well-suited for the example considered, given the small number of elements in the vector <code>x</code>. For the time comparison, recall that 0.001 ms is 1 μs, and 1 μs is 1,000 ns.</p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> Views + Lazy Arrays </button>
+    <button class="tablink" data-id=""> Views + Lazy Arrays + Static Arrays </button>
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">using LazyArrays
+
+function example1&#40;x&#41;
+    output &#61; 0.0
+
+    @views for i in 1:100
+        intermediate_result &#61; @~ x&#91;1:2&#93; .&#43; x&#91;3:4&#93; .* x&#91;5:6&#93; ./ i
+        output              &#61; sum&#40;intermediate_result&#41;
+    end
+
+    return output
+end
+
+x &#61; rand&#40;10&#41; # vector for testing
+@btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  541.489 ns (0 allocations: 0 bytes)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">using LazyArrays, StaticArrays 
+
+function example2&#40;x&#41;
+    output &#61; 0.0
+
+    @views for i in 1:100
+        intermediate_result &#61; @~ x&#91;1:2&#93; .&#43; x&#91;3:4&#93; .* x&#91;5:6&#93; ./ i
+        output              &#61; sum&#40;intermediate_result&#41;
+    end
+
+    return output
+end
+
+x &#61; SVector&#40;rand&#40;10&#41;...&#41; # vector for testing
+@btime example2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.330 μs (0 allocations: 0 bytes)
 </code></pre> </div></div> </div> 
  </div></div>
 <p>  </p></details></div>
@@ -1870,9 +1862,9 @@ end
 <footer class="py-1">    
     <!-- <p class="m-0"> -->
     <div class="container">
-       <span class="left-text"><a href="/blog/PAGES\02_worldHeatmaps" class="prevPage"><img src="/blog/assets/icons/prev-page.png"
+       <span class="left-text"><a href="/blog/PAGES\04_staticVectors" class="prevPage"><img src="/blog/assets/icons/prev-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"> Previous Post</a></span>
-       <span class="right-text"><a href="/blog/PAGES\04_staticVectors" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
+       <span class="right-text"><a href="/blog/PAGES\01_packageUpdate" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"></a>    </span>              
     <span class="center-text">  © Martin Alfaro <br>Website Last Modified on June 25, 2023 </span>  
   </div>
@@ -1959,11 +1951,6 @@ function goToNextPage() {
 </div><!-- CONTENT ENDS HERE -->
 
 <!-- ADDED BY FRANKLIN -->
-  
-      
-
-
-
   
   
       <script src="/blog/libs/highlight/highlight.pack.js"></script>
@@ -2316,7 +2303,7 @@ window.onkeydown = function(event) {
 <nav class="navbar navbar-dark">
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
     <span class="navbar-toggler-icon"></span>
-    <a class="navbar-brand">Performance Improvements in Julia (Part 1): Lazy Broadcasting</a>
+    <a class="navbar-brand">Performance Improvements in Julia (Part 3): Reducing Allocations from Slices</a>
   </button>
   <div class="collapse navbar-collapse" id="collapsibleNavbar">
     <ul class="navbar-nav">
@@ -2326,15 +2313,11 @@ window.onkeydown = function(event) {
       </li>
       
       <li class="nav-item">
-        <a class="nav-link" href="#motivating_example" data-offset="-40">Motivating Example</a>
+        <a class="nav-link" href="#slices_of_vectors_and_their_indices" data-offset="-40">Slices of Vectors and their Indices</a>
       </li>
       
       <li class="nav-item">
-        <a class="nav-link" href="#comparing_approaches" data-offset="-40">Comparing Approaches</a>
-      </li>
-      
-      <li class="nav-item">
-        <a class="nav-link" href="#when_to_use_lazy_broadcasts" data-offset="-40">When to Use Lazy Broadcasts?</a>
+        <a class="nav-link" href="#macros_for_views" data-offset="-40">Macros for Views</a>
       </li>
       
     </ul>
