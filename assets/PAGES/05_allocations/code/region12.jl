@@ -11,5 +11,6 @@ function example1(x)
     return output
 end
 
+
 x = rand(10) # vector for testing
 @btime example1(ref($x))

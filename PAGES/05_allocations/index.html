@@ -1693,7 +1693,7 @@ h1{
 foo1&#40;x&#41; &#61; x&#91;&#91;1,2&#93;&#93;
 
 @btime foo1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  29.849 ns (2 allocations: 160 bytes)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  30.181 ns (2 allocations: 160 bytes)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
 <div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; rand&#40;10&#41; # vector for testing
@@ -1707,7 +1707,7 @@ foo2&#40;x&#41; &#61; x&#91;1:2&#93;
 foo3&#40;x&#41; &#61; view&#40;x, 1:2&#41;
 
 @btime foo3&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  1.700 ns (0 allocations: 0 bytes)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  1.500 ns (0 allocations: 0 bytes)
 </code></pre> </div></div> </div> 
  </div></div>
 <p>  </p></details></div>
@@ -1727,7 +1727,7 @@ foo3&#40;x&#41; &#61; view&#40;x, 1:2&#41;
 end
 
 @btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  299.900 μs (20000 allocations: 1.53 MiB)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  303.600 μs (20000 allocations: 1.53 MiB)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
 <div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function example2&#40;x&#41;
@@ -1737,7 +1737,7 @@ end
 end
 
 @btime example2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  146.900 μs (10000 allocations: 781.25 KiB)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  147.900 μs (10000 allocations: 781.25 KiB)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
 <div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function example3&#40;x&#41;
@@ -1778,7 +1778,7 @@ end
 
 x &#61; rand&#40;10&#41; # vector for testing
 @btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  101.810 ns (7 allocations: 560 bytes)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  101.697 ns (7 allocations: 560 bytes)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
 <div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">@views function example2&#40;x&#41;
@@ -1789,7 +1789,7 @@ end
 
 x &#61; rand&#40;10&#41; # vector for testing
 @btime example2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  29.548 ns (2 allocations: 160 bytes)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  29.447 ns (2 allocations: 160 bytes)
 </code></pre> </div></div> </div> 
  </div></div>
 <p>  </p></details></div>
@@ -1807,17 +1807,10 @@ x &#61; rand&#40;10&#41; # vector for testing
 end
 
 x &#61; rand&#40;10&#41; # vector for testing
-@btime example&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.410 μs (100 allocations: 7.81 KiB)
+@btime example&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.360 μs (100 allocations: 7.81 KiB)
 </code></pre> </div></div> </div>   </details></div>
-<p>The code above eliminates the memory allocation for each slice. As for the 100 allocations we observe, they occur due to the computation of <code>intermediate_result</code> in each iteration. </p>
-<p>This example can also serve as an illustration of the methods presented in this blog so far. First, we can avoid the 100 allocations by converting <code>intermediate_result</code> into a lazy array. Second, we can speed up the computations further by using static vectors. This approach is well-suited for the example considered, given the small number of elements in the vector <code>x</code>. For the time comparison, recall that 0.001 ms is 1 μs, and 1 μs is 1,000 ns.</p>
- <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
- <div class="tab_wrapper">
- <div class="tab_code_links">
-    <button class="tablink first_tab active" data-id=""> Views + Lazy Arrays </button>
-    <button class="tablink" data-id=""> Views + Lazy Arrays + Static Arrays </button>
-</div><div data-id="" class="tabcontent active">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">using LazyArrays
+<p>The code above eliminates the memory allocation for each slice. As for the 100 allocations we observe, they occur due to the computation of <code>intermediate_result</code> in each iteration. This example can also serve as an illustration of the methods presented in this blog so far. Specifically, we can avoid the 100 allocations by converting <code>intermediate_result</code> into a lazy array. </p>
+ <div class=" code_box"> <details  open><summary> Views &#43; Lazy Arrays  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">using LazyArrays
 
 function example1&#40;x&#41;
     output &#61; 0.0
@@ -1830,30 +1823,10 @@ function example1&#40;x&#41;
     return output
 end
 
+
 x &#61; rand&#40;10&#41; # vector for testing
-@btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  541.489 ns (0 allocations: 0 bytes)
-</code></pre> </div></div> </div> 
- </div><div data-id="" class="tabcontent">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">using LazyArrays, StaticArrays 
-
-function example2&#40;x&#41;
-    output &#61; 0.0
-
-    @views for i in 1:100
-        intermediate_result &#61; @~ x&#91;1:2&#93; .&#43; x&#91;3:4&#93; .* x&#91;5:6&#93; ./ i
-        output              &#61; sum&#40;intermediate_result&#41;
-    end
-
-    return output
-end
-
-x &#61; SVector&#40;rand&#40;10&#41;...&#41; # vector for testing
-@btime example2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.330 μs (0 allocations: 0 bytes)
-</code></pre> </div></div> </div> 
- </div></div>
-<p>  </p></details></div>
+@btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  539.894 ns (0 allocations: 0 bytes)
+</code></pre> </div></div> </div>   </details></div>
 <p>      </div>
     </div>
   </div>
