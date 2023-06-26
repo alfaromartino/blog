@@ -55,6 +55,7 @@ end
 @btime example1(ref($x)) 
  
  x = rand(10) # testing vector
+
 @views function example2(x)
     output = x[1:2] .+ x[3:4] .* x[5:6]
     

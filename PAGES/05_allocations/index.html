@@ -1783,6 +1783,7 @@ end
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
 <div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x &#61; rand&#40;10&#41; # testing vector
+
 @views function example2&#40;x&#41;
     output &#61; x&#91;1:2&#93; .&#43; x&#91;3:4&#93; .* x&#91;5:6&#93;
     
