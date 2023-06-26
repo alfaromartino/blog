@@ -1,3 +1,4 @@
+x = rand(10) # testing vector
 function example(x)
     output = 0.0
 
@@ -9,5 +10,4 @@ function example(x)
     return output
 end
 
-x = rand(10) # vector for testing
 @btime example(ref($x))

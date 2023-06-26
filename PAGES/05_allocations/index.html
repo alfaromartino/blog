@@ -1689,25 +1689,25 @@ h1{
     <button class="tablink" data-id=""> Range as Index</button>
     <button class="tablink" data-id=""> View </button>
 </div><div data-id="" class="tabcontent active">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; rand&#40;10&#41; # vector for testing
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; rand&#40;10&#41; # testing vector
 foo1&#40;x&#41; &#61; x&#91;&#91;1,2&#93;&#93;
 
 @btime foo1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  30.181 ns (2 allocations: 160 bytes)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  30.050 ns (2 allocations: 160 bytes)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; rand&#40;10&#41; # vector for testing
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; rand&#40;10&#41; # testing vector
 foo2&#40;x&#41; &#61; x&#91;1:2&#93;
 
 @btime foo2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  16.132 ns (1 allocation: 80 bytes)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  16.333 ns (1 allocation: 80 bytes)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; rand&#40;10&#41; # vector for testing
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x       &#61; rand&#40;10&#41; # testing vector
 foo3&#40;x&#41; &#61; view&#40;x, 1:2&#41;
 
 @btime foo3&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  1.500 ns (0 allocations: 0 bytes)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.700 ns (0 allocations: 0 bytes)
 </code></pre> </div></div> </div> 
  </div></div>
 <p>  </p></details></div>
@@ -1727,7 +1727,7 @@ foo3&#40;x&#41; &#61; view&#40;x, 1:2&#41;
 end
 
 @btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  303.600 μs (20000 allocations: 1.53 MiB)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  298.800 μs (20000 allocations: 1.53 MiB)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
 <div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function example2&#40;x&#41;
@@ -1737,7 +1737,7 @@ end
 end
 
 @btime example2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  147.900 μs (10000 allocations: 781.25 KiB)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  147.900 μs (10000 allocations: 781.25 KiB)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
 <div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function example3&#40;x&#41;
@@ -1747,7 +1747,7 @@ end
 end
 
 @btime example3&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  1.930 μs (0 allocations: 0 bytes)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.970 μs (0 allocations: 0 bytes)
 </code></pre> </div></div> </div> 
  </div></div>
 <p>  </p></details></div>
@@ -1763,39 +1763,41 @@ end
 <p>Adding <code>view</code> to the code can quickly become tedious, especially when dealing with functions that involve multiple slices. Due to this, Julia provides some macros to facilitate its usage. One of these macros is <code>@view</code>, which creates a view of the object immediately following it. The following code snippet demonstrates its use.</p>
  <div class=" code_box"> <details  open><summary> &#39;@view&#39; macro  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia"># macro &#39;@view&#39;
 foo&#40;x&#41; &#61; @view&#40;x&#91;1:2&#93;&#41; &#43; @view&#40;x&#91;3:4&#93;&#41;</code></pre> </div> </div>  </details></div>
-<p>I don&#39;t find this macro particularly useful, as it requires more typing compared to the function <code>view</code>. On the contrary, the macro <code>@views</code> is quite convenient, as it creates a view for each slice within an expression. This feature is particularly useful for functions, as the following example demonstrates.</p>
+<p>I don&#39;t find this macro particularly useful, and it even requires more typing compared to the function <code>view</code>. On the contrary, there&#39;s another macro that I frequently used, which is called <code>@views</code>. This creates a view for each slice within an expression. This feature is particularly useful for functions, as the following example demonstrates.</p>
  <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
  <div class="tab_wrapper">
  <div class="tab_code_links">
     <button class="tablink first_tab active" data-id=""> Without @views </button>
     <button class="tablink" data-id=""> With @views </button>
 </div><div data-id="" class="tabcontent active">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function example1&#40;x&#41;
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x &#61; rand&#40;10&#41; # testing vector
+
+function example1&#40;x&#41;
     output &#61; x&#91;1:2&#93; .&#43; x&#91;3:4&#93; .* x&#91;5:6&#93;
     
     return output .&#43; x&#91;7:8&#93; .* x&#91;9:10&#93;
 end
 
-x &#61; rand&#40;10&#41; # vector for testing
 @btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  101.697 ns (7 allocations: 560 bytes)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  101.065 ns (7 allocations: 560 bytes)
 </code></pre> </div></div> </div> 
  </div><div data-id="" class="tabcontent">
-<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">@views function example2&#40;x&#41;
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">x &#61; rand&#40;10&#41; # testing vector
+@views function example2&#40;x&#41;
     output &#61; x&#91;1:2&#93; .&#43; x&#91;3:4&#93; .* x&#91;5:6&#93;
     
     return output .&#43; x&#91;7:8&#93; .* x&#91;9:10&#93;
 end
 
-x &#61; rand&#40;10&#41; # vector for testing
 @btime example2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
-<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="mixed_output_NoFormat"><span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <br/> <pre><code class="plaintext code-output">  29.447 ns (2 allocations: 160 bytes)
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  29.305 ns (2 allocations: 160 bytes)
 </code></pre> </div></div> </div> 
  </div></div>
 <p>  </p></details></div>
-<p>The function without <code>@views</code> has 7 allocations: One for <code>output</code>, another for the vector in the <code>return</code> statement, and 5 allocations from the slices. Instead, by adding <code>@views</code> before the definition of the function, each slice is called through a view. This results in the elimination of the 5 allocations from the slices, reducing the total allocations to 2.</p>
+<p>The function without <code>@views</code> has 7 allocations: One for <code>output</code>, another for the vector in the <code>return</code> statement, and 5 from the slices. Instead, by adding <code>@views</code> before the definition of the function, each slice is called through a view. This results in the elimination of the 5 allocations from the slices, reducing the total allocations to 2.</p>
 <p>Notice that the use of <code>@views</code> can be applied to any expression, not just functions. For instance, the following code creates views of each slice in a for-loop.</p>
- <div class=" code_box"> <details  open><summary> @views In For-Loops  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">function example&#40;x&#41;
+ <div class=" code_box"> <details  open><summary> @views In For-Loops  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">x &#61; rand&#40;10&#41; # testing vector
+function example&#40;x&#41;
     output &#61; 0.0
 
     @views for i in 1:100
@@ -1806,11 +1808,21 @@ x &#61; rand&#40;10&#41; # vector for testing
     return output
 end
 
-x &#61; rand&#40;10&#41; # vector for testing
-@btime example&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.360 μs (100 allocations: 7.81 KiB)
+@btime example&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.380 μs (100 allocations: 7.81 KiB)
 </code></pre> </div></div> </div>   </details></div>
-<p>The code above eliminates the memory allocation for each slice. As for the 100 allocations we observe, they occur due to the computation of <code>intermediate_result</code> in each iteration. This example can also serve as an illustration of the methods presented in this blog so far. Specifically, we can avoid the 100 allocations by converting <code>intermediate_result</code> into a lazy array. </p>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="why_not_static_vectors" class="scrollspy">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Why not Static Vectors?</h2></p>
+<p>In the last code snippet, we eliminated the allocations from the slices. However, we still have 100 allocations due to the computation of <code>intermediate_result</code> in each iteration. Could we eliminate these allocations as well? Answering this question allows us to showcase the methods discussed in this blog so far. Furthermore, it highlights when the use of views is advantageous compared to other alternatives, such as static vectors.</p>
+<p>First, the 100 allocations can be avoided by converting <code>intermediate_result</code> into a lazy array. This technique exploits that <code>intermediate_result</code> itself is not of interest, but rather serves as an input for a sum. Therefore, we can delay the computation of <code>intermediate_result</code> until we perform the sum. The following code snippet demonstrates this approach, where recall that 1 μs is 1000 ns. </p>
  <div class=" code_box"> <details  open><summary> Views &#43; Lazy Arrays  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">using LazyArrays
+x &#61; rand&#40;10&#41; # testing vector
 
 function example1&#40;x&#41;
     output &#61; 0.0
@@ -1823,10 +1835,53 @@ function example1&#40;x&#41;
     return output
 end
 
-
-x &#61; rand&#40;10&#41; # vector for testing
-@btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  539.894 ns (0 allocations: 0 bytes)
+@btime example1&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  541.176 ns (0 allocations: 0 bytes)
 </code></pre> </div></div> </div>   </details></div>
+<p>One question you might be asking yourself is why we&#39;re not using tuples or static vectors. After all, we showed in a previous post that tuples/static vectors allow for faster computations and do not allocate. More generally, this raises the question of when views should be applied. The key to understanding this is that <strong> tuples/static vectors are performant only when the object comprises a small number of elements</strong>. Instead, <strong> the performance of view is not impacted by the number of elements.</strong></p>
+<p>In the particular example we&#39;re considering, it&#39;s possible to use tuples or static vectors: we&#39;re working with an array with 10 elements, making it ideal for its application. This not only would speed up the calculations, but also eliminate the need for views &#40;tuples/static vectors do not allocate&#41;. Notice, nonetheless, that working with slices of static vectors can be somewhat cumbersome, as it requires specifying the indexes through a static vector. If you don&#39;t do this, the static vector would be converted to an ordinary vector.</p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> Tuples </button>
+    <button class="tablink" data-id=""> Static Vectors </button>
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">using LazyArrays
+x &#61; Tuple&#40;rand&#40;10&#41;&#41; # testing vector, converted to a tuple
+
+function example2&#40;x&#41;
+    output &#61; 0.0
+
+    for i in 1:100
+        intermediate_result &#61; x&#91;1:2&#93; .&#43; x&#91;3:4&#93; .* x&#91;5:6&#93; ./ i
+        output              &#61; sum&#40;intermediate_result&#41;
+    end
+
+    return output
+end
+
+@btime example2&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.400 ns (0 allocations: 0 bytes)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">using LazyArrays, StaticArrays
+x &#61; @SVector rand&#40;10&#41; # testing vector, converted to a static vector
+
+function example3&#40;x&#41;
+    output &#61; 0.0
+
+    for i in 1:100
+        intermediate_result &#61; x&#91;SVector&#40;1,2&#41;&#93; .&#43; x&#91;SVector&#40;3,4&#41;&#93; .* x&#91;SVector&#40;5,6&#41;&#93; ./ i
+        output              &#61; sum&#40;intermediate_result&#41;
+    end
+
+    return output
+end
+
+@btime example3&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  1.600 ns (0 allocations: 0 bytes)
+</code></pre> </div></div> </div> 
+ </div></div>
+<p>  </p></details></div>
 <p>      </div>
     </div>
   </div>
@@ -1839,7 +1894,7 @@ x &#61; rand&#40;10&#41; # vector for testing
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"> Previous Post</a></span>
        <span class="right-text"><a href="/blog/PAGES\01_packageUpdate" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"></a>    </span>              
-    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on June 25, 2023 </span>  
+    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on June 26, 2023 </span>  
   </div>
 <!-- </p>  -->
 </footer>
@@ -2291,6 +2346,10 @@ window.onkeydown = function(event) {
       
       <li class="nav-item">
         <a class="nav-link" href="#macros_for_views" data-offset="-40">Macros for Views</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#why_not_static_vectors" data-offset="-40">Why not Static Vectors?</a>
       </li>
       
     </ul>

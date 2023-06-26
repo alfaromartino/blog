@@ -1,4 +1,5 @@
 using LazyArrays
+x = rand(10) # testing vector
 
 function example1(x)
     output = 0.0
@@ -11,6 +12,4 @@ function example1(x)
     return output
 end
 
-
-x = rand(10) # vector for testing
 @btime example1(ref($x))
