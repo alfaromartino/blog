@@ -1662,7 +1662,7 @@ h1{
  <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
       <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
       Remark </span>  </div>  <div class=content>     The <strong> script used in this post</strong> can be found <a href="https://github.com/alfaromartino/blog/tree/main//assets/PAGES/05_allocations/codeDownload"><strong>here</strong></a> under the name <code>allCode.jl</code>. To replicate the code with the same package versions I used, download <code>allCode_withPkg.jl</code> instead, along with <code>Project.toml</code> and <code>Manifest.toml</code>.<br/><br/> The benchmarks in this post wrap each variable into the function <code>ref&#40;x&#41; &#61; &#40;Ref&#40;x&#41;&#41;&#91;&#93;</code>. This prevents the computer from realizing that we&#39;re repeating the same calculation. Otherwise, <code>@btime</code> ends up repeating the result after a few iterations, without performing any computation. We also interpolate the variables with <code>&#36;</code> to avoid a function&#39;s arguments being interpreted as a global variable.<br/><br/> The code has been tested under <code>Julia 1.9</code>.  </div>  </div>
-<section id="introduction" class="scrollspy section-bg-color">
+<section id="introduction" class="scrollspy">
   <div class="container">
     <div class="row">
       <div class="col-lg- mx-auto">
@@ -1676,7 +1676,7 @@ h1{
     </div>
   </div>
 </section>
-<section id="slices_of_vectors_and_their_indices" class="scrollspy">
+<section id="slices_of_vectors_and_their_indices" class="scrollspy section-bg-color">
   <div class="container">
     <div class="row">
       <div class="col-lg- mx-auto">
@@ -1755,7 +1755,7 @@ end
     </div>
   </div>
 </section>
-<section id="macros_for_views" class="scrollspy section-bg-color">
+<section id="macros_for_views" class="scrollspy">
   <div class="container">
     <div class="row">
       <div class="col-lg- mx-auto">
@@ -1815,7 +1815,7 @@ end
     </div>
   </div>
 </section>
-<section id="why_not_static_vectors" class="scrollspy">
+<section id="why_not_static_vectors" class="scrollspy section-bg-color">
   <div class="container">
     <div class="row">
       <div class="col-lg- mx-auto">
@@ -1893,9 +1893,9 @@ end
     <div class="container">
        <span class="left-text"><a href="/blog/PAGES\04_staticVectors" class="prevPage"><img src="/blog/assets/icons/prev-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"> Previous Post</a></span>
-       <span class="right-text"><a href="/blog/PAGES\01_packageUpdate" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
+       <span class="right-text"><a href="/blog/PAGES\06_preAllocations" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"></a>    </span>              
-    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on June 26, 2023 </span>  
+    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on July 3, 2023 </span>  
   </div>
 <!-- </p>  -->
 </footer>

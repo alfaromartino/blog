@@ -108,12 +108,26 @@ dftoc[firstindex(dftoc.pagemd), :next_page] = replace(dftoc.pagemd[end], r".md$"
 
 
 # TO REFER TO ASSETS (for images and the link to codeDownload)
-    assets_folder(PAGEfile) = "/assets/$(subfolder)/$(PAGEfile)"
+assets_folder(PAGEfile) = "/assets/$(subfolder)/$(PAGEfile)"
 dftoc.path_assets       = assets_folder.(dftoc.name)
 
 let dftoc = dftoc
     assets_folder(PAGEfile) = "/assets/$(subfolder)/$(PAGEfile)"
     html_tree               = "https://github.com/alfaromartino/$(path_prepath)/tree/main/"
     dftoc.path_codeDownload = string.(html_tree, dftoc.path_assets, "/codeDownload")
+end
+
+
+
+# FOR GOOGLE ROBOTS
+url    = "https://alfaromartino.github.io/blog/PAGES/"
+robots = string.(url, dftoc.name, "/")
+robots = join(robots, "\n")
+
+function create_textfile(dir, namefile, included_text)
+    path = joinpath("$(dir)","$(namefile)") #use "" instead of `dir` for using current folder
+    open(path, "w") do file
+        write(file, included_text) 
+    end
 end
 

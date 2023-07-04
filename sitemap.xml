@@ -38,6 +38,12 @@
     <priority>0.5</priority>
 </url>
 <url>
+    <loc>PAGES\06_preAllocations\index.html</loc>
+    <lastmod>2023-07-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
     <loc>PAGES\05_allocations\index.html</loc>
     <lastmod>2023-06-26</lastmod>
     <changefreq>monthly</changefreq>

@@ -17,7 +17,8 @@
 
   <!-- FRANKLIN DEFINED - LATEX AND CODE HIGHLIGHTS -->
   
-  
+   <link rel="stylesheet" href="/blog/libs/highlight/styles/vs_myversion.css">
+   
 
   <link rel="stylesheet" href="/blog/css/bootstrap.min.css">    
   <style>
@@ -1248,18 +1249,21 @@ color: white;
 
 
 
-  
-  
 
+
+
+
+
+<!-- CONTENT PAGES -->
+    
+    
 <style>
-
-
-h1  {font-family: "Crimson Text"; }
-.lead{font-family: "Cormorant";}
-
-
 /* TITLE AND NAME */
-
+h1{
+  padding-top:0.4em;
+  font-size:200% !important;
+  text-align:center;  
+}
 
 .name_format{    
   padding-top: 0.2em;
@@ -1276,73 +1280,44 @@ h1  {font-family: "Crimson Text"; }
   font-size: 90%;
   text-align: center;    
   margin-top:-0.2em;
-  padding-bottom: 0.95em;
+  margin-bottom: -0.89em;
   }
 
   
-
-
-.phd_format{margin-bottom:-1.2em;}
-
-
-
   .name_format a { color: white; }
   .name_format a:hover {
     color: rgb(212, 212, 212);
     color: rgb(214, 227, 240)
   }
+
+  section a{
+    color: rgb(0, 96, 192);}
+
+  section a:hover{
+    color: rgba(48, 114, 180, 0.8);}
   
 
-
-/* TITLE AND NAME */
-
-h1{
-  margin-top:-0.17em;
-  font-size:280% !important;  
-  text-align:center;  
+/* for fixing overflowing code */
+.col-lg-.mx-auto {
+      /* white-space: pre-wrap;  */
+      overflow: auto !important;
 }
 
-
-
-
-
-.lead {padding-top:0.34em; padding-bottom:0.1em; font-size:175%;}
-
-
-
-.franklin-content, html, section .column{
-  background-color: rgb(217, 224, 231);
-}
-
-section{
-    font-size: 22px;
-    }
-
-    .index_container a, section a {  
-  color: rgb(45, 101, 157);
-  text-decoration: underline;  
-  font-weight:600;    
-}
-
-.index_container a:hover, section a:hover{
-  color: rgba(57, 106, 155, 0.6);
-  text-decoration: underline;  
-}
-
-/* ========================== */
-</style>    
-  <header class="text-white text-center">
+  
+</style>
+    <header class="text-white text-center">
   
     <div class="jumbotron jumbotron-fluid container-fluid bg-primary">
   
 
 
-    <h1>List of Posts</h1>            
+    <h1>Performance Improvements in Julia (Part 4): Pre-Allocations</h1>    
+    <div class="lead"> </div>
     
     
     <div class="name_format">
       <a href="https://alfaromartino.github.io/" target="_blank" rel="noopener noreferrer">Martin Alfaro</a>
-    </div>
+      </div>
       <div class="phd_format">PhD in Economics</div>
     
     
@@ -1357,61 +1332,588 @@ section{
   </div>
 </header>
 
-   
+    
+    <div class="bar_top">
+  <ul>
+     <li>
+      <div style="text-indent:0;">
+        <button class="modalButton" style="background-color: transparent; color:white; display:block; margin-bottom: -2px; padding-left:0;">
+          <img src="/blog/assets/icons/keyboard01.png" style="width:auto; height:30px; opacity:0.9; padding-bottom:2px; padding-right:10px; ">
+            Notation and Keyboard Shortcuts</button>
+      </div>      
+      <div class="kbd_shortcuts">
+    <div class="modal" id="modal_bar">
+        <!-- Modal content -->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <h2> NOTATION AND KEYBOARD SHORTCUTS</h2>
+            </div>
+            <div class="modal-body">
+                <span style="color:blue; font-weight:bold;">Any code written in a script</span> is displayed in <span style="color:blue; font-weight:bold;">blue boxes</span>, 
+                whereas <span style="color:rgb(63, 136, 99); font-weight:bold;">output displayed in REPL</span> is in <span style="color:rgb(63, 136, 99); font-weight:bold;">green boxes</span>. 
+                Moreover, text in code representing some expression is denoted by <b>&lt;this should be replaced by some code&gt;</b>.<br><br>
+
+                The website layout is adjusted, so that you can <b>zoom in or out on the page</b> if you find the main body's text too small or too big. <br>
+                
+                The following keyboard shortcuts were also incorporated to facilitate navigation.
+                <br>
+                <br>                
+
+                <style type="text/css">
+                    .tg {
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                    }
+
+                    .tg td {
+                        border-color: black;
+                        border-style: solid;
+                        border-width: 1px;
+                        overflow: hidden;
+                        padding: 10px 12px;
+                        word-break: normal;
+                    }
+
+                    .tg th {
+                        border-color: black;
+                        border-style: solid;
+                        border-width: 1px;
+                        font-weight: normal;
+                        overflow: hidden;
+                        padding: 10px 5px;
+                        word-break: normal;
+                    }
+
+                    .tg .tg-80zn {
+                        background-color: rgba(63, 99, 136, 0.2);
+                        border-color: #ffffff;
+                        font-weight: bold;
+                        text-align: center;
+                        vertical-align: top
+                    }
+
+                    .tg .tg-esg4 {
+                        background-color: #ebebeb;
+                        border-color: #ffffff;
+                        font-weight: bold;
+                        text-align: right;
+                        vertical-align: top
+                    }
+
+                    .tg .tg-8jgo {
+                        border-color: #ffffff;
+                        text-align: left;
+                        vertical-align: top
+                    }
+
+                    .tg .tg-ofj5 {
+                        border-color: #ffffff;
+                        text-align: center;
+                        vertical-align: top
+                    }
+                </style>
+
+                <table class="tg" style="margin-left: auto;  margin-right: auto;">
+                    <thead>
+                        <tr>
+                            <th class="tg-80zn">Action</th>
+                            <th class="tg-80zn">Keyboard Shortcut</th>
+                        </tr>
+                    </thead>
+                    <tbody>  
+                        <tr>
+                            <td class="tg-8jgo">Open All Codes and Outputs in a Post</td>
+                            <td class="tg-ofj5"><kbd>Ctrl + 🠙</kbd></td>
+                        </tr>
+                        <tr>
+                            <td class="tg-8jgo">Close All Codes and Outputs in a Post</td>
+                            <td class="tg-ofj5"><kbd>Ctrl + 🠛</kbd></td>
+                        </tr>                      
+                        <tr>
+                            <td class="tg-8jgo">Close Any Popped Up Window (like this one)</td>
+                            <td class="tg-ofj5"><kbd>Esc</kbd></td>
+                        </tr>
+                        <tr>
+                            <td class="tg-8jgo">Previous Post</td>
+                            <td class="tg-ofj5"><kbd>Ctrl + 🠘</kbd></td>
+                        </tr>
+                        <tr>
+                            <td class="tg-8jgo">Next Post</td>
+                            <td class="tg-ofj5"><kbd>Ctrl + 🠚</kbd></td>
+                        </tr>
+                        <tr>
+                            <td class="tg-8jgo">List of Sections in a Post</td>
+                            <td class="tg-ofj5"><kbd>Ctrl + x</kbd></td>
+                        </tr>
+                        <tr>
+                            <td class="tg-8jgo">List of Keyboard Shortcuts</td>
+                            <td class="tg-ofj5"><kbd>Ctrl + z</kbd></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>                
+            </div>
+        </div>
+    </div>
 
 
 
 
 
-<!-- CONTENT PAGES -->
+    <style>
+        .kbd_shortcuts {
+            color: black;
+            font-size: 16px;
+            line-height: 1.55;            
+            list-style-type: none;
+            position: relative;
+            padding: 0;                
+        }
+
+        .kbd_shortcuts kbd {
+            font-size: 14px;}
+
+        
+                    
+        .kbd_shortcuts .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 350; /* Sit on top */            
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */  
+            overflow: auto; /* Enable scroll if needed */  
+            background-color: transparent;
+            padding-top:48px;             
+            padding-left: 180px;
+            
+        }
+            
+        .kbd_shortcuts .modal-content {
+            background-color: rgb(207, 218, 228); /* rgb(235, 235, 235); */
+            max-width: 90%;
+            height: max-content; max-height: 90%;
+            margin:0; padding:0;            
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+
+        .kbd_shortcuts .modal-body {
+            margin-left: 8px;            
+            text-align: left;
+            
+            padding-top: 8px;
+            padding-bottom: 2px;
+            overflow: auto;            
+        }
+
+
+        .kbd_shortcuts .modal-header {
+            padding: 0; 
+            margin:0;           
+            color: white;
+            width: 100%;            
+            background-color: rgb(63,99,136)
+        }
+
+        .kbd_shortcuts .modal-header h2 {
+            padding-top: 16px;
+            font-size: 20px;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+            color:white;
+            background-color: rgb(63,99,136)
+        };            
+        
+
+        
+
+        .kbd_shortcuts .modal-body p {
+            padding: 0px 4px;
+            text-align: justify;
+            text-justify: inter-word;            
+        }
+
+
+        /* modal button */
+        .modalButton {
+            border: none;
+            box-shadow: none;
+            width: auto;            
+            padding: 0;
+            background-color: transparent;
+            color: white;
+            margin: 0;            
+        }
+
+        
+    </style>
+    </li>
+  </ul>
+</div>
 
 
 
-
-
-
-<div class="franklin-content"><p> 
 <style>
-html{background-color: #cdd6e0;}
-
- .index_container {    
-  width:100%;    
-  font-size:20px;
-  text-align: justify;
-  text-justify: inter-word;
-  line-height: 1.65;    
-  padding-left:10%;
-  padding-right:10%;
-  margin-top:-20px;
-  padding-top:40px;  
-  background-color: #cdd6e0;
-  font-family: inter;
+  /* ================================================================= 
+                        TOP BAR - TO NAVIGATE SECTIONS
+  ================================================================= */ 
+    
+  .bar_top {  
+    /* background-color: rgb(0, 0, 0);   */
+    background-image: linear-gradient(to right, black, rgb(0, 0, 0) 10%, rgb(63,99,136) 55%, rgb(63,99,136));
+    position: fixed;  /* fixed to stay at the top */
+    width: 100%;
+    height:48px;
+    top: 0;
+    left: 0;
+    padding: 8px 0px 10px 0px;
+    font-size: 100%;
+    z-index: 125;  
   } 
-
-  .index_container ul {
-      list-style-type: none;     
+  
+  .bar_top a:hover {
+      color: rgb(160, 159, 159); 
   }
   
   
-</style>
-</p>
- <div class="index_container">
- <ul>
+  .bar_top li {  
+    list-style-type: none;
+    float:left;
+    position:relative;
+    left: 160px; /* 180px; */    
+    padding-left:0;    
+  }
+  
+  .bar_top li a{   
+    color: white;
+  }
+  
+  
+  
+  
+  /* bar topright modal (for content of the modal) */
+
+
+  .bar_top .modal-content {      
+    position: relative;
+    width: 1200px; max-width: 90%;
+    height: max-content; max-height: 90%;    
+  }
+  
+  
+  .bar_top .modal-body .row{ 
+    margin-left: 0;    
+    margin-right: 0;  
+  }
+  
+  .bar_top .modal-body .column {
+    margin: 0px auto;    
+  }
+  
+  .bar_top .modal-body ul li{ 
+    margin-left: 0em;        
+    /* line-height: 1.55; */
+    text-indent: -1em;   
+    font-size:90%;
+    line-height: 1.0;
+    padding-bottom:12px;}
+
+.bar_top .modal-body ul li a{   
+    margin-left:-1em;
+  }
     
-       <li><a href="/blog/PAGES/06_preAllocations/">Performance Improvements in Julia (Part 4): Pre-Allocations</a><br> <span style="font-size:70%">July 3, 2023</span> </li><br>
+
+.bar_top .modal-body li {  
+    float:left;  
+    position:relative;
+    left:0px;
+    right:0px;
+    padding:0;  }
+
+
+  /* modal button */
+  .bar_top .modalButton {      
+    border: none;
+    margin-bottom: 24px;
+    /* box-shadow: 3px 3px 4px black;   */
+    box-shadow: none;  
+}
+
+/* The Close Button */
+.bar_top .modalClose {    
+  font-size: 0px;   
+}
+
     
-       <li><a href="/blog/PAGES/05_allocations/">Performance Improvements in Julia (Part 3): Reducing Allocations from Slices</a><br> <span style="font-size:70%">June 25, 2023</span> </li><br>
     
-       <li><a href="/blog/PAGES/04_staticVectors/">Performance Improvements in Julia (Part 2): Tuples and Static Arrays</a><br> <span style="font-size:70%">June 19, 2023</span> </li><br>
+  </style>
+      
+
+
+
+
+
+
+<div class="franklin-content">
+ <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
+      <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
+      Remark </span>  </div>  <div class=content>     The <strong> script used in this post</strong> can be found <a href="https://github.com/alfaromartino/blog/tree/main//assets/PAGES/06_preAllocations/codeDownload"><strong>here</strong></a> under the name <code>allCode.jl</code>. To replicate the code with the same package versions I used, download <code>allCode_withPkg.jl</code> instead, along with <code>Project.toml</code> and <code>Manifest.toml</code>.<br/><br/> The benchmarks in this post wrap each variable into the function <code>ref&#40;x&#41; &#61; &#40;Ref&#40;x&#41;&#41;&#91;&#93;</code>. This prevents the computer from realizing that we&#39;re repeating the same calculation. Otherwise, <code>@btime</code> ends up repeating the result after a few iterations, without performing any computation. We also interpolate the variables with <code>&#36;</code> to avoid a function&#39;s arguments being interpreted as a global variable.<br/><br/> The code has been tested under <code>Julia 1.9</code>.  </div>  </div>
+<section id="introduction" class="scrollspy section-bg-color">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Introduction</h2></p>
+<p>This is the 4th part on performance improvements in Julia that are easy to implement. The previous parts covered <a href="/blog/PAGES/03_LazyArrays">lazy broadcasting</a>, <a href="/blog/PAGES/04_staticVectors">tuples/static vectors</a>, and <a href="/blog/PAGES/05_allocations">views</a>. This part discusses   <span style="color: rgb(73, 113, 153);"><strong> pre-allocation of outputs</strong></span>. </p>
+<p>The technique addresses the memory allocation that comes with creating new objects. It leverages that mutating the contents of an existing object does not allocate, enabling the user to avoid creating a new object in every iteration of a loop. Although we&#39;ll illustrate the concepts through vectors, the same principle applies to other objects. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> Notice that pre-allocating outputs entails no benefits if we only need to compute a result once, as we always need to create a new object to start with.  </span></span></p>
+<p>The main takeaway from the post is that pre-allocations can greatly enhance performance. However, they can also hinder code readability. Therefore, you should decide whether its implementation pays off, by carefully weighing the trade-off between performance and code complexity involved.</p>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="preliminaries" class="scrollspy">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Preliminaries</h2></p>
+<p>The packages used in this post are the following.</p>
+ <div class=" code_box"> <details  open><summary> Packages and Variables  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">using BenchmarkTools, Random, Statistics
+
+Random.seed&#33;&#40;1234&#41;
+x &#61; rand&#40;100&#41;</code></pre> </div> </div>  </details></div>
+<p>We&#39;ll suppose that our ultimate goal is to store the computation of the vector <code>output</code>, and that this requires computing a vector <code>temp</code> multiple times. Notice that pre-allocations entail no advantages when <code>temp</code> only operates on single elements, even if the operations are performed multiple times. The reason is that single elements do not allocate memory. For example, <code>temp</code> in the following code only involves manipulating single elements of <code>x</code>, and so no allocation arises.</p>
+ <div class=" code_box"> <details  open><summary> Single Elements Do Not Allocate  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">function example1&#40;x&#41;
+    output &#61; similar&#40;x&#41;    
     
-       <li><a href="/blog/PAGES/03_LazyArrays/">Performance Improvements in Julia (Part 1): Lazy Broadcasting</a><br> <span style="font-size:70%">June 12, 2023</span> </li><br>
+    for i in eachindex&#40;x&#41;
+        temp      &#61; x&#91;1&#93; / x&#91;i&#93;
+        output&#91;i&#93; &#61; mean&#40;temp&#41;
+    end
+
+    return output
+end
+
+@btime example1&#40;ref&#40;&#36;x&#41;&#41;;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  80.864 ns (1 allocation: 896 bytes)
+</code></pre> </div></div> </div>   </details></div>
+<p>The only allocation arising in the example is due to the creation of the vector <code>output</code>. As we consider that the user wants to store <code>output</code>, this allocation is unavoidable. </p>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="pre-allocations" class="scrollspy section-bg-color">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Pre-Allocations</h2></p>
+<p>Based on the above observations, our focus will be on a  <em> vector</em> <code>temp</code>. To keep the code simple, we also initialize <code>output</code> by introducing it as a keyword argument. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> The keyword argument <code>similar&#40;x&#41;</code> uses the function&#39;s argument <code>x</code>. This is possible in Julia as a function&#39;s arguments are evaluated sequentially, allowing the user to define a keyword argument based on any argument defined before.  </span></span></p>
+<p>In particular, we&#39;ll consider the following baseline example.</p>
+ <div class=" code_box"> <details  open><summary> Baseline Example  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">function example2&#40;x; output&#61;similar&#40;x&#41;&#41;     
+    for i in eachindex&#40;x&#41;
+        temp      &#61; x ./ x&#91;i&#93;
+        output&#91;i&#93; &#61; mean&#40;temp&#41;
+    end
+
+    return output
+end
+
+@btime example2&#40;ref&#40;&#36;x&#41;&#41;;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  5.540 μs (101 allocations: 88.38 KiB)
+</code></pre> </div></div> </div>   </details></div>
+<p>Out of the 101 allocations, one corresponds to the creation of <code>output</code> and hence will always occur. The remaining 100 allocations arise because a new vector <code>temp</code> is created in each iteration of the for-loop &#40;recall that the length of <code>x</code> is 100, which defines the number of iterations&#41;.</p>
+<p>We can avoid these 100 allocations by pre-allocating <code>temp</code>. This requires creating <code>temp</code> before the loop, which we then update within the loop. The first example below remarks a wrong use of pre-allocations, where we don&#39;t use <code>.&#61;</code>. The other two examples represent equivalent ways to perform the pre-allocation. </p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> Wrong Use </button>
+    <button class="tablink" data-id=""> Right Use </button>
+    <button class="tablink" data-id=""> Simplest Use </button>
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function compute_output1&#40;x; output&#61;similar&#40;x&#41;&#41; 
+    temp &#61; similar&#40;x&#41;
+
+    for i in eachindex&#40;x&#41;
+        temp      &#61; x ./ x&#91;i&#93;
+        output&#91;i&#93; &#61; mean&#40;temp&#41;
+    end
+
+    return output
+end
+
+@btime compute_output1&#40;ref&#40;&#36;x&#41;&#41;;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  5.640 μs (102 allocations: 89.25 KiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function compute_output2&#40;x; output&#61;similar&#40;x&#41;&#41; 
+    temp &#61; similar&#40;x&#41;
+
+    for i in eachindex&#40;x&#41;
+        temp      .&#61; x ./ x&#91;i&#93;
+        output&#91;i&#93;  &#61; mean&#40;temp&#41;
+    end
+
+    return output
+end
+
+@btime compute_output2&#40;ref&#40;&#36;x&#41;&#41;;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  4.143 μs (2 allocations: 1.75 KiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">function compute_output3&#40;x; output&#61;similar&#40;x&#41;&#41; 
+    temp &#61; similar&#40;x&#41;
+
+    for i in eachindex&#40;x&#41;
+        @. temp   &#61; x / x&#91;i&#93;
+        output&#91;i&#93; &#61; mean&#40;temp&#41;
+    end
+
+    return output
+end
+
+@btime compute_output3&#40;ref&#40;&#36;x&#41;&#41;;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  4.057 μs (2 allocations: 1.75 KiB)
+</code></pre> </div></div> </div> 
+ </div></div>
+<p>  </p></details></div>
+<p>The use of the macro <code>@.</code> in <code>example3</code> is the easiest way to perform the pre-allocation of <code>temp</code>. This macro adds a dot to each operator in the expression, including <code>&#61;</code>, thereby ensuring we&#39;re not omitting any dot unintentionally.</p>
+ <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
+      <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
+      Remark </span>  </div>  <div class=content>     Pre-Allocations and In-Place operations are closely related. In fact, pre-allocating <code>temp</code> in the previous example is equivalent to doing it through an in-place operation. The following example shows this equivalence, where the content of <code>temp</code> is updated in each iteration by executing <code>preallocated&#33;</code>.</p>
+<p> <div class=" code_box"> <details  open><summary> Pre-Allocation as an In-Place Operation  </summary> <div class="code_inline"><div class="code_NoFormat"><div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">function preallocated&#33;&#40;temp, x, i&#41;
+    for j in eachindex&#40;x&#41;
+        temp&#91;j&#93; &#61; x&#91;j&#93; / x&#91;i&#93;
+    end    
+end
+
+function compute_output4&#40;x; output&#61;similar&#40;x&#41;&#41; 
+    temp &#61; similar&#40;x&#41;
+
+    for i in eachindex&#40;x&#41;
+        preallocated&#33;&#40;temp, x, i&#41;
+        output&#91;i&#93; &#61; mean&#40;temp&#41;
+    end
+
+    return output
+end
+
+@btime compute_output4&#40;ref&#40;&#36;x&#41;&#41;;</code></pre> </div> </div> </div> </div>  </details></div>  </div>  </div>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="repeated_application_of_pre-allocation" class="scrollspy">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Repeated Application of Pre-Allocation</h2></p>
+<p>The function <code>compute_output3</code> in the last example reduces the number of allocations from 102 to 2. These 2 allocations correspond to the creation of vectors <code>output</code> and <code>temp</code>.</p>
+<p>The approach is useful if <code>output</code> is the final output we&#39;re interested in. However, this result could eventually be used as an input in another loop, determining that the 2 allocations would be repeated multiple times. To show this, consider the following example, where we include the creation of <code>temp</code> as a keyword argument. </p>
+ <div class=" code_box"> <details  open><summary> Output Used Multiple Times  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">function intermediate_result&#40;x; output&#61;similar&#40;x&#41;&#41;
+    temp &#61; similar&#40;x&#41;
+
+    for i in eachindex&#40;x&#41;
+        @. temp   &#61; x / x&#91;i&#93;
+        output&#91;i&#93; &#61; mean&#40;temp&#41;
+    end
+
+    return output
+end
+
+final_result&#40;x&#41; &#61; &#91;intermediate_result&#40;x&#41; for _ in 1:100&#93;
+
+@btime final_result&#40;ref&#40;&#36;x&#41;&#41;;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  410.400 μs (201 allocations: 175.88 KiB)
+</code></pre> </div></div> </div>   </details></div>
+<p>The example shows that the 2 allocations are repeated 100 times, making a total of 201 allocations &#40;200 &#43; 1 allocation from creating the vector in <code>final_result</code> itself&#41;. However, we can further reduce the number of allocations by creating <code>temp</code> and <code>output</code> outside the loop in <code>final_result</code>. </p>
+ <div class=" code_box"> <details  open><summary> Output Used Multiple Times  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">function intermediate_result&#40;x, output, temp&#41;
+    for i in eachindex&#40;x&#41;
+        @. temp   &#61; x / x&#91;i&#93;
+        output&#91;i&#93; &#61; mean&#40;temp&#41;
+    end
+
+    return output
+end
+
+function final_result&#40;x&#41;
+    output &#61; similar&#40;x&#41;
+    temp   &#61; similar&#40;x&#41;
+    &#91;intermediate_result&#40;x, output, temp&#41; for i in 1:100&#93;
+end
+
+@btime final_result&#40;ref&#40;&#36;x&#41;&#41;;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  403.800 μs (3 allocations: 2.62 KiB)
+</code></pre> </div></div> </div>   </details></div>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="some_conclusions" class="scrollspy section-bg-color">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Some Conclusions</h2></p>
+<p>The last example reveals that <strong> pre-allocating outputs can make the code quite cumbersome</strong>. This means that you should assess whether improving performance is worth the extra complexity. To clearly see this, compare the code above with the following one, which provides an identical result:</p>
+ <div class=" code_box"> <details  open><summary> Simple Code  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">intermediate_result&#40;x&#41; &#61; mean.&#40;x ./ x&#91;i&#93; for i in eachindex&#40;x&#41;&#41;
+final_result&#40;x&#41;        &#61; &#91;intermediate_result&#40;x&#41; for _ in 1:100&#93;
+
+@btime final_result&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div> </div> <div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  543.900 μs (10201 allocations: 8.72 MiB)
+</code></pre> </div></div> </div>   </details></div>
+<p>Consequently, you should first consider alternative options to pre-allocations when possible. For example, depending on the operation to perform, the use of lazy broadcasting or static vectors may keep the code simpler while achieving similar performance.</p>
+<p>Finally, notice that we considered examples where the vector&#39;s length is 100. This explains why there are no big differences in time between the approaches. This suggests that the performance gains from pre-allocations only materialize when the vector&#39;s length is larger. Indeed, when we increase the vector&#39;s length to 10_000, the differences in time become more evident, as the following example demonstrates.</p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> Without Pre-Allocations </button>
+    <button class="tablink" data-id=""> With Pre-Allocations </button>    
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">Random.seed&#33;&#40;1234&#41;
+x &#61; rand&#40;10_000&#41;
+
+intermediate_result&#40;x&#41; &#61; mean.&#40;x ./ x&#91;i&#93; for i in eachindex&#40;x&#41;&#41;
+final_result&#40;x&#41;        &#61; &#91;intermediate_result&#40;x&#41; for _ in 1:100&#93;
+
+@btime final_result&#40;ref&#40;&#36;x&#41;&#41;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  71.684 s (2000401 allocations: 74.57 GiB)
+</code></pre> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"><pre><code class="language-julia">Random.seed&#33;&#40;1234&#41;
+x &#61; rand&#40;10_000&#41;
     
-       <li><a href="/blog/PAGES/02_worldHeatmaps/">World Heatmaps in Julia</a><br> <span style="font-size:70%">June 12, 2023</span> </li><br>
-    
-       <li><a href="/blog/PAGES/01_packageUpdate/">Conflicting Packages Preventing Updating</a><br> <span style="font-size:70%">June 2, 2023</span> </li><br>
-    
-</ul>
- </div>
+function intermediate_result&#40;x, output, temp&#41;
+    for i in eachindex&#40;x&#41;
+        @. temp   &#61; x / x&#91;i&#93;
+        output&#91;i&#93; &#61; mean&#40;temp&#41;
+    end
+
+    return output
+end
+
+function final_result&#40;x&#41;
+    output &#61; similar&#40;x&#41;
+    temp   &#61; similar&#40;x&#41;
+    &#91;intermediate_result&#40;x, output, temp&#41; for i in 1:100&#93;
+end
+
+@btime final_result&#40;ref&#40;&#36;x&#41;&#41;;</code></pre> </div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="franklin_output_NoFormat"><pre><code class="plaintext code-output">  4.723 s (5 allocations: 157.22 KiB)
+</code></pre> </div></div> </div> 
+ </div></div>
+<p>  </p></details></div>
+<p>      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="py-1">    
+    <!-- <p class="m-0"> -->
+    <div class="container">
+       <span class="left-text"><a href="/blog/PAGES\05_allocations" class="prevPage"><img src="/blog/assets/icons/prev-page.png"
+        style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"> Previous Post</a></span>
+       <span class="right-text"><a href="/blog/PAGES\01_packageUpdate" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
+        style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"></a>    </span>              
+    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on July 3, 2023 </span>  
+  </div>
+<!-- </p>  -->
+</footer>
 
 
 
@@ -1494,6 +1996,11 @@ function goToNextPage() {
 
 <!-- ADDED BY FRANKLIN -->
   
+  
+      <script src="/blog/libs/highlight/highlight.pack.js"></script>
+<!-- <script src="/blog/libs/highlight/julia.highlight.js"></script> -->
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
   
   <script src="/blog/libs/simple-scrollspy.min.js"></script>
   <script>
@@ -1830,6 +2337,174 @@ window.onkeydown = function(event) {
 
 
  <!-- FOR NAVIGATION-->
+       
+    
+<!-- to make it visible as default change line 9 by
+<div class="collapse show navbar-collapse" id="collapsibleNavbar"> -->
+
+
+<!-- unline the ABOVE, this has OFFSET, SO THAT WE MOVE UP OR DOWN WHEN IT GOES TO THE LINK (in case the header covers the title of the subsection)-->
+<nav class="navbar navbar-dark">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+    <a class="navbar-brand">Performance Improvements in Julia (Part 4): Pre-Allocations</a>
+  </button>
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">
+    <ul class="navbar-nav">
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#introduction" data-offset="-40">Introduction</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#preliminaries" data-offset="-40">Preliminaries</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#pre-allocations" data-offset="-40">Pre-Allocations</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#repeated_application_of_pre-allocation" data-offset="-40">Repeated Application of Pre-Allocation</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#some_conclusions" data-offset="-40">Some Conclusions</a>
+      </li>
+      
+    </ul>
+  </div>
+</nav>
+
+<script>
+  $(function () {
+    // Add click event listener to nav links
+    $('.nav-link').on('click', function (event) {
+      event.preventDefault();
+      var target = $(this.getAttribute('href'));
+      var offset = parseInt($(this).data('offset'), 10) || 0;
+
+      if (target.length) {
+        // Set the scroll position without animation
+        $('html, body').scrollTop(target.offset().top + offset);
+      }
+    });
+
+    $(document).click(function (event) {
+      var clickover = $(event.target);
+      var _opened = $(".navbar-collapse").hasClass("navbar-collapse collapse show");
+      if (_opened === true && clickover.closest('.navbar').length === 0) {
+        $(".navbar-collapse").collapse('hide');
+      }
+    });
+  });
+</script>
+
+
+
+<!-- ===========================  
+    TO CLOSE IT
+=============================== -->
+
+
+<!-- PRESSING ANYWHERE TO CLOSE THE SECTION BAR -->
+<script>
+  $(function () {
+    $(document).click(function (event) {
+      var clickover = $(event.target);
+      var _opened = $(".navbar-collapse").hasClass("navbar-collapse collapse show");
+      if (_opened === true && clickover.closest('.navbar').length === 0) {
+        $(".navbar-collapse").collapse('hide');
+      }
+    });
+  });
+</script>
+
+
+  
+
+<!-- PRESSING ESC TO CLOSE THE SECTION BAR and ctrl+x to open it -->
+<script>
+document.onkeydown = function(evt) {
+  if ((evt.keyCode == 27) || (evt.key === 'x' && evt.ctrlKey === true)){
+    $(".navbar-collapse").collapse('hide');
+  }
+  if (evt.key === 'x' && evt.ctrlKey === true) {
+    $(".navbar-collapse").collapse('show');
+  }
+};
+</script>
+
+
+<style>
+
+
+
+
+
+
+  /* ================================================================= 
+                      NAVIGATION BAR
+================================================================= */ 
+.navbar{
+  z-index: 175;
+  position:fixed;
+  top:0;
+  right:0;
+  color: white;
+  border: none;
+  padding: 0px 0px;
+  display: block;
+  }
+
+.navbar-toggler {
+  position:relative;
+  background-color: rgb(63,99,136);
+  border-radius: 0;
+  border:none;
+  height:48px;
+  font-size:100%;
+}
+
+.navbar-brand {  
+  font-size:100%;
+  padding-right:2px;  
+}
+
+
+.navbar-nav{
+  position:fixed;  
+  right:0;
+  padding-left:22px; 
+  padding-right:10px;   
+  padding-top:8px; 
+  /* background-color: rgb(63,99,136);   */
+  background-image: linear-gradient(to bottom, rgb(63,99,136) 30%,  black );
+  height:100%;    
+  width:300px;
+  font-size:100%;
+}
+
+.navbar-nav ul{
+  visibility: visible;  
+}
+
+
+.nav-item a{  
+    color: white !important;    
+}
+.nav-item a:hover{
+  color: rgb(160, 159, 159) !important;
+}
+
+#collapsibleNavbar{
+  transition: none;
+}
+
+
+</style>
+
+
 
 
 <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto|Poppins|Crimson+Text|Cardo|Ubuntu"></link> -->
@@ -1960,8 +2635,6 @@ window.onkeydown = function(event) {
     @media (max-width: 850px), (max-height: 600px) {
       h2, .lead {font-size: 140%;padding-top:1em; }
       h1 {font-size: 200%}
-      
-        h1 {padding-bottom:0.5em; }
       
     }
 
