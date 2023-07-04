@@ -1,5 +1,4 @@
-https://alfaromartino.github.io/blog/PAGES/05_allocations/
-https://alfaromartino.github.io/blog/PAGES/04_staticVectors/
-https://alfaromartino.github.io/blog/PAGES/03_LazyArrays/
-https://alfaromartino.github.io/blog/PAGES/02_worldHeatmaps/
-https://alfaromartino.github.io/blog/PAGES/01_packageUpdate/
+Sitemap: sitemap.xml
+
+User-agent: *
+Disallow:
