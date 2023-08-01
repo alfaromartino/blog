@@ -1311,7 +1311,7 @@ h1{
   
 
 
-    <h1>World Heatmaps in Julia</h1>    
+    <h1>Free AI Tools for Coding in Julia: Disappointing Results</h1>    
     <div class="lead"> </div>
     
     
@@ -1319,7 +1319,7 @@ h1{
       <a href="https://alfaromartino.github.io/" target="_blank" rel="noopener noreferrer">Martin Alfaro</a>
       <span style="font-size:70%; vertical-align:0.05em;">- PhD in Economics</span>
       </div>
-      <div class="phd_format">June 12, 2023</div>
+      <div class="phd_format">July 31, 2023</div>
 
     
     
@@ -1661,32 +1661,437 @@ h1{
 
 
 <div class="franklin-content">
-<section id="summary" class="scrollspy">
+<section id="introduction" class="scrollspy">
   <div class="container">
     <div class="row">
       <div class="col-lg- mx-auto">
-        <h2>Summary</h2></p>
-<p>The note is posted on my website, in the section Coding Guides <a href="https://alfaromartino.github.io/coding/PAGES/01_heatmaps_world/">here</a>.</p>
-<p> <span style="visibility:hidden"> == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == 
-== == == == == == == == == == == == == 
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-       </div>
+        <h2>Introduction</h2></p>
+<p>In the past, I&#39;ve applied AI tools for coding in HTML/CSS/JS, Python, and R. While the results are far from perfect, they tend to work relatively well after some minor adjustments. However, Julia is a less popular language, and hence there&#39;s a limited amount of information to train AI models. Despite this limitation, can we expect AI tools to perform decently well when applied to Julia?</p>
+<p>The post explores this question by focusing on free AI tools. The conclusion is that <strong> these tools applied to Julia tend to perform quite poorly</strong>. My claim is supported by  <em> two reasons</em>.</p>
+<p>First, the suggested Julia code often requires more than simple adjustments—it&#39;s not uncommon for the code to need a complete rewrite, unlike what occurs with more popular languages.  </p>
+<p>Second, AI chatbots perform particularly poorly at justifying their answers. This is a more severe issue than the first one, as it affects new learners disproportionately and incorrect explanations aren&#39;t as easy to spot as invalid code. In fact, it&#39;s quite common obtaining answers based on other languages. This is likely arising because of the limited Julia data, combined with ample information for other languages. As an example, all the AI chatbots consistently claim that vectorized code is faster than for-loops in Julia, and even discourage the use of functions.</p>
+<p>On a more positive note, <strong> AI tools seem pretty efficient at constructing regular expressions in Julia</strong>. This is remarkable, as writing regular expressions isn&#39;t particularly hard, but can quickly become tedious. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> To avoid a lengthy post, examples with regular expressions aren&#39;t included. I&#39;ll probably write a separate post about it.  </span></span></p>
+<p>Overall, the main message is that <strong> you should be cautious when using AI tools for coding, but even more so when applying them to Julia</strong>. This becomes particularly relevant if you rely on AI tools to learn the language itself.</p>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="models_tested" class="scrollspy section-bg-color">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Models Tested</h2></p>
+<p>I present the outputs from several sample prompts. The goal is to illustrate my impressions of AI tools for Julia coding. </p>
+<p>I only consider  <span style="font-style:italic; font-size:18px;"><strong> free options</strong></span>, which include ChatGPT-3.5, ChatGPT-4, Bard, Claude-2, and LLaMA2-70b. You can freely access each as follows. </p>
+<div class="itemNoSpace"><ul>
+<li><p><strong> ChatGPT-3.5</strong>, <strong> Claude-2</strong>, and <strong> LLaMA2-70b</strong>: accessed through <a href="https://poe.com/">poe.com</a>. The first two models can also be accessed directly through their websites. The less performant version Claude-1 yields similar results to Claude-2 for Julia.</p>
+</li>
+</ul>
+<ul>
+<li><p><strong> ChatGPT-4</strong>: accessed through <a href="https://www.phind.com/">www.phind.com</a>. A couple of free messages per day are also available through <a href="https://poe.com/">poe.com</a>.</p>
+</li>
+</ul>
+<ul>
+<li><p><strong> Bard</strong>: accessed directly through <a href="https://bard.google.com/">bard.google.com</a>. For countries where Bard is not available &#40;e.g., Canada&#41;, it can still be freely accessed. This requires installing Opera browser, which has a basic built-in VPN. The same method can be applied to access Claude-2 through its official website &#40;only possible in the USA and UK&#41;, rather than through Poe.</p>
+</li>
+</ul></div>
+<br/>
+ <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
+      <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
+      Remark </span>  </div>  <div class=content> <strong> GitHub Copilot</strong> &#40;free for students and professors&#41; and <strong> Bing Chat</strong> are allegedly powered by ChatGPT-4. However, in my tests, they were providing the same responses as ChatGPT-3.5. This was clear to see when ChatGPT-3.5 was providing incorrect answers, while ChatGPT-4 through Phind or Poe was giving accurate answers.  </div>  </div>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="conclusions_of_the_tests" class="scrollspy">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>Conclusions of the Tests</h2></p>
+<p>There are two key points you can appreciate from the results.</p>
+<div class="itemNoSpace"><ol>
+<li><p><strong> ChatGPT-4 seems to be the top option at the moment</strong>, although its performance when applied to Julia is not breathtaking. Yet, it signals the possibility of better free alternatives arriving quite soon. Indeed, given the quick advances in the field, it&#39;s highly likely that this post will become obsolete within just a few months&#33;</p>
+</li>
+</ol>
+<ol>
+<li><p><strong> LLaMA2-70b and Bard</strong> are the worst alternatives. Furthermore, I was expecting a better performance from Claude-2—I had previously used it for various tasks, and their results were outperforming ChatGPT-3.5 in several domains.</p>
+</li>
+</ol></div>
+<br/>
+<p>All code has been checked under <code>Julia 1.9.2</code>.</p>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="test_1_code_creation" class="scrollspy section-bg-color">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>TEST 1: CODE CREATION</h2></p>
+<p>I show two tests. The first one describes the task concisely, without any explanation. This helps us identify whether any problems stem from the user&#39;s formulation or the AI&#39;s ability to code in Julia. The second one considers a more specific task, for which I provide some clarifications. Overall, the solutions suggested by the AI accomplish their purpose, but tend to be more complex than necessary. </p>
+ <h4> Simple Task </h4>
+<p>I deliberately provided a short vague prompt, by not defining the concepts of &quot;normalize&quot; and &quot;share&quot;. </p>
+<p>  <span style="color: rgb(73, 113, 153);"><strong> PROMPT</strong></span>:  <b><tt>Provide some code in Julia that normalizes a vector, expressing each entry as a share. </tt></b></p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> ChatGPT-3.5 </button>
+    <button class="tablink" data-id=""> ChatGPT-4</button>
+    <button class="tablink" data-id=""> Claude-2 </button>
+    <button class="tablink" data-id=""> Bard </button>
+    <button class="tablink" data-id=""> LLaMA2-70b </button>    
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">function normalize_vector&#40;v&#41;
+    total &#61; sum&#40;v&#41;
+    return &#91;x/total for x in v&#93;
+end</code></pre>
+<p></div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="julia_repl_NoFormat"> <span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>normalize_vector&#40;&#91;1,2,3&#93;&#41;</code><br/><div class="akin_to_pre">3-element Vector{Float64}:
+ 0.16666666666666666
+ 0.3333333333333333
+ 0.5</div> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">function normalize_vector&#40;v&#41;
+    sum_v &#61; sum&#40;v&#41;
+    return v ./ sum_v
+end</code></pre>
+<p></div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="julia_repl_NoFormat"> <span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>normalize_vector&#40;&#91;1,2,3&#93;&#41;</code><br/><div class="akin_to_pre">3-element Vector{Float64}:
+ 0.16666666666666666
+ 0.3333333333333333
+ 0.5</div> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">function normalize&#40;v&#41;
+    s &#61; sum&#40;v&#41;
+    if s &#61;&#61; 0
+        return v
+    else
+        return v ./ s
+    end
+end</code></pre>
+<p></div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="julia_repl_NoFormat"> <span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>normalize&#40;&#91;1,2,3&#93;&#41;</code><br/><div class="akin_to_pre">3-element Vector{Float64}:
+ 0.16666666666666666
+ 0.3333333333333333
+ 0.5</div> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">function normalize_vector&#40;x&#41;  
+  # Check if the vector is empty
+  if length&#40;x&#41; &#61;&#61; 0
+    return x
+  end
+
+  # Calculate the sum of the vector
+  sum_x &#61; sum&#40;x&#41;
+
+  # If the sum is zero, return a vector of zeros
+  if sum_x &#61;&#61; 0
+    return zeros&#40;length&#40;x&#41;&#41;
+  end
+
+  # Divide each element of the vector by the sum
+  y &#61; x / sum_x
+
+  # Return the normalized vector
+  return y
+end</code></pre>
+<p></div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="julia_repl_NoFormat"> <span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>normalize_vector&#40;&#91;1,2,3&#93;&#41;</code><br/><div class="akin_to_pre">3-element Vector{Float64}:
+ 0.16666666666666666
+ 0.3333333333333333
+ 0.5</div> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">using LinearAlgebra
+
+# Define a vector
+x &#61; &#91;1, 2, 3&#93;
+
+# Normalize the vector
+normalized_x &#61; x / &#40;sum&#40;x&#41; / length&#40;x&#41;&#41;</code></pre>
+<p></div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="julia_repl_NoFormat"> <span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>normalized_x</code> #WRONG result<br/><div class="akin_to_pre">3-element Vector{Float64}:
+ 0.5
+ 1.0
+ 1.5</div> </div></div> </div> 
+ </div></div>
+<p>  </p></details></div>
+<p> <h4> A Wordier Task With User-Provided Hints. </h4> </p>
+<p>I now consider a more specific task and provide some hints to guide the AI. The objective is to identify whether the AI can provide a brief efficient solution when it has a clear understanding of the user&#39;s needs.</p>
+<p>  <span style="color: rgb(73, 113, 153);"><strong> PROMPT</strong></span>:  <b><tt>Provide some code in Julia that, given a vector <code>x</code>, provides a vector <code>y</code> with the ranking position of <code>x</code>. The index 1 of <code>y</code> has to represent the highest value of <code>x</code>.  For instance, given <code>x&#61;&#91;2,10,1,0&#93;</code>, we should obtain <code>y&#61;&#91;2,1,3,4&#93;</code>. </tt></b></p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> ChatGPT-3.5 </button>
+    <button class="tablink" data-id=""> ChatGPT-4</button>
+    <button class="tablink" data-id=""> Claude-2 </button>
+    <button class="tablink" data-id=""> Bard </button>
+    <button class="tablink" data-id=""> LLaMA2-70b </button>    
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">function rank_vector&#40;x&#41;
+    y &#61; sortperm&#40;x, rev&#61;true&#41;
+    return y
+end</code></pre>
+<p></div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="julia_repl_NoFormat"> <span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>rank_vector&#40;&#91;2,10,1,0&#93;&#41;</code><br/><div class="akin_to_pre">4-element Vector{Int64}:
+ 2
+ 1
+ 3
+ 4</div> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">function rank_vector&#40;x&#41;
+    sorted_indices &#61; sortperm&#40;x, rev&#61;true&#41;
+    ranks &#61; zeros&#40;Int, length&#40;x&#41;&#41;
+    for i in 1:length&#40;x&#41;
+        ranks&#91;sorted_indices&#91;i&#93;&#93; &#61; i
+    end
+    return ranks
+end</code></pre>
+<p></div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="julia_repl_NoFormat"> <span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>rank_vector&#40;&#91;2,10,1,0&#93;&#41;</code><br/><div class="akin_to_pre">4-element Vector{Int64}:
+ 2
+ 1
+ 3
+ 4</div> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">function ranking&#40;x&#41;
+    p &#61; sortperm&#40;x, rev&#61;true&#41;
+    y &#61; zeros&#40;Int, length&#40;x&#41;&#41;
+    for &#40;i,j&#41; in enumerate&#40;p&#41;
+        y&#91;j&#93; &#61; i 
+    end
+    return y
+end</code></pre>
+<p></div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="julia_repl_NoFormat"> <span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>ranking&#40;&#91;2,10,1,0&#93;&#41;</code><br/><div class="akin_to_pre">4-element Vector{Int64}:
+ 2
+ 1
+ 3
+ 4</div> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">function ranking&#40;x&#41;
+  y &#61; zeros&#40;length&#40;x&#41;&#41;
+  for i in 1:length&#40;x&#41;
+    # Find the number of elements in x that are less than or equal to x&#91;i&#93;
+    count &#61; sum&#40;x &lt;&#61; x&#91;i&#93;&#41;
+    # Set the ranking position of x&#91;i&#93; to count &#43; 1
+    y&#91;i&#93; &#61; count &#43; 1
+  end
+  return y
+end</code></pre>
+<p></div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="julia_repl_NoFormat"> <span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>ranking&#40;&#91;2,10,1,0&#93;&#41;</code><br/><div class="akin_to_pre">ERROR: MethodError: no method matching isless(::Vector{Int64}, ::Int64)</div> </div></div> </div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">function ranking&#40;x&#41;
+    # Sort the vector in descending order
+    sorted_x &#61; sort&#40;x, by &#61; x -&gt; -x&#41;
+    # Get the indices of the sorted vector
+    indices &#61; collect&#40;sorted_x&#41;
+    # Create a new vector with the ranking positions
+    y &#61; ones&#40;Int, length&#40;x&#41;&#41; .* &#40;indices .- 1&#41;
+    return y
+end</code></pre>
+<p></div></div> 
+<div class="output_in_modal"><div class="sign_output">Output in REPL </div>  <div class="mixed_output_inline"><div class="julia_repl_NoFormat"> <span style="color:rgb(32, 198, 121) !important; font-weight: bold;">julia&gt</span> <code>ranking&#40;&#91;2,10,1,0&#93;&#41;</code> #WRONG result<br/><div class="akin_to_pre">4-element Vector{Int64}:
+ 9
+ 1
+ 0
+ 1</div> </div></div> </div> 
+ </div></div>
+<p>  </p></details></div>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="test_2_identifying_performant_code" class="scrollspy">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>TEST 2: IDENTIFYING PERFORMANT CODE</h2></p>
+<p>For this test, I also consider two options. The first one asks the AIs to improve some existent code. The second one asks the AIs to rank three code snippets by performance.</p>
+ <h4> Asking for Improvements in Code </h4>
+<p>The example considers a code snippet that is clearly inefficient due to the use of global variables. The goal was to identify whether the AIs would suggest wrapping the code in a function. None of them did it.</p>
+ <div class=" code_box"> <details  open><summary> PROMPT  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
+<pre><code class="language-julia"># The following code is written in Julia to compute &#39;y&#39;. 
+# Rewrite it to speed up its computations.
+
+x &#61; rand&#40;1000&#41;
+y &#61; zeros&#40;length&#40;x&#41;&#41;
+
+for i in eachindex&#40;x&#41;
+    y&#91;i&#93; &#61; sum&#40;x&#91;i:end&#93;&#41; / i
+end</code></pre>
+<p></div> </div>  </details></div>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> ChatGPT-3.5 </button>
+    <button class="tablink" data-id=""> ChatGPT-4</button>
+    <button class="tablink" data-id=""> Claude-2 </button>
+    <button class="tablink" data-id=""> Bard </button>
+    <button class="tablink" data-id=""> LLaMA2-70b </button>    
+</div><div data-id="" class="tabcontent active">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">x &#61; rand&#40;1000&#41;
+n &#61; length&#40;x&#41;
+y &#61; zeros&#40;n&#41;
+
+cumulative_sum &#61; cumsum&#40;x&#41;
+
+for i in 1:n
+    y&#91;i&#93; &#61; cumulative_sum&#91;n&#93; - cumulative_sum&#91;i-1&#93;
+    y&#91;i&#93; /&#61; i
+end</code></pre>
+<p></div></div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">x &#61; rand&#40;1000&#41;
+y &#61; zeros&#40;length&#40;x&#41;&#41;
+cumulative_sum &#61; sum&#40;x&#41;
+
+for i in eachindex&#40;x&#41;
+    y&#91;i&#93; &#61; cumulative_sum / i
+    cumulative_sum -&#61; x&#91;i&#93;
+end</code></pre>
+<p></div></div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">x &#61; rand&#40;1000&#41;
+y &#61; zeros&#40;length&#40;x&#41;&#41; 
+
+s &#61; cumsum&#40;x&#41;
+
+for i in eachindex&#40;x&#41;
+    y&#91;i&#93; &#61; &#40;s&#91;end&#93; - s&#91;i&#93;&#41; / i  
+end</code></pre>
+<p></div></div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia">x &#61; rand&#40;1000&#41;
+y &#61; zeros&#40;length&#40;x&#41;&#41;
+
+# Calculate the cumulative sum of x.
+cumsum_x &#61; cumsum&#40;x&#41;
+
+# Calculate y using the cumulative sum.
+for i in 1:length&#40;y&#41;
+    y&#91;i&#93; &#61; cumsum_x&#91;i&#93; / i
+end</code></pre>
+<p></div></div> 
+ </div><div data-id="" class="tabcontent">
+<div class="code_in_modal"><div class="code_NoFormat"></p>
+<pre><code class="language-julia"># invalid code, and changing &#96;dim&#96; for &#96;dims&#96; provides a different result
+x &#61; rand&#40;1000&#41;
+y &#61; cumsum&#40;x, dim &#61; 1&#41; / cumsum&#40;1:length&#40;x&#41;, dim &#61; 1&#41;</code></pre>
+<p></div></div> 
+ </div></div>
+<p>  </p></details></div>
+<p>All the models provide similar answers if you clear the chat and re-execute the prompt, so this feature is not determining the results. The only exception is Bard, which provides different answers. It occasionally suggested performant code, but due to incorrect reasons.  <span class="footn supr">&#91;note&#93;  <span class="footn_text"> For instance, several times it wrapped the code in a function, without any reference to why it was doing it. Quite likely, the use of functions was actually responding to a &quot;hallucination&quot;, where it provided computation times by executing <code>@btime</code>.  </span></span></p>
+<p>For ChatGPT-4, I additionally tested other prompts. The aim was to ensure that the model wasn&#39;t assuming I&#39;d eventually wrap the code in a function. The results were identical. Furthermore, I asked whether the code suggested was &quot;a more&quot; efficient or &quot;the most&quot; efficient solution, for which it indicated that  <em> "the provided solution is the most efficient for this specific problem."</em></p>
+<p>It&#39;s also interesting that Phind has the capability of accessing the internet. This makes the incorrect answer more surprising, as it reports <a href="https://docs.julialang.org/en/v1/manual/performance-tips/#man-performance-tips">&quot;Performance Tips&quot;</a> as one of its sources. This webpage is part of the official documentation, and its first recommendation is to wrap code in functions to avoid the use of global variables.</p>
+ <h4> Ranking Code Snippets by Performance </h4>
+<p>The example provides three code snippets to the AIs, all of which return the same output. Then, the task of the AI is to rank each code by performance. This makes it possible to identify whether the AIs provide a correct answer, but also assess the explanations outlined. Only ChatGPT-4 was able to do it.</p>
+ <div class=" code_box"> <details  open><summary> PROMPT  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
+<pre><code class="language-julia"># I&#39;m using Julia and have codes named &#39;code 1&#39;, &#39;code 2&#39;, and &#39;code3&#39;. 
+# If I execute each as they&#39;re written, which code should be faster? 
+# Rank them by speed.
+
+##### CODE 1 ######
+x &#61; rand&#40;100_000&#41;
+y &#61; similar&#40;x&#41;
+
+function example1&#40;x,y&#41;
+  for i in eachindex&#40;x&#41;
+      y&#91;i&#93; &#61; log&#40;x&#91;i&#93; &#43; 1&#41; ^ x&#91;i&#93;
+  end 
+end
+
+example1&#40;x,y&#41;
+
+##### CODE 2 ######
+x &#61; rand&#40;100_000&#41;
+y &#61; similar&#40;x&#41;
+
+for i in eachindex&#40;x&#41;
+  y&#91;i&#93; &#61; log&#40;x&#91;i&#93; &#43; 1&#41; ^ x&#91;i&#93;
+end 
+
+
+##### CODE 3 ######
+x &#61; rand&#40;100_000&#41;
+y &#61; similar&#40;x&#41;
+
+function example3&#40;&#41;
+  for i in eachindex&#40;x&#41;
+      y&#91;i&#93; &#61; log&#40;x&#91;i&#93; &#43; 1&#41; ^ x&#91;i&#93;
+  end 
+end
+
+example3&#40;&#41;</code></pre>
+<p></div> </div>  </details></div>
+<p>The results are as follows. </p>
+<p>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-80zn{background-color:rgba(63, 99, 136, 0.2);border-color:#ffffff;font-weight:bold;text-align:center;vertical-align:top; 
+padding-left:0.5em; padding-right:0.5em;}
+.tg .tg-esg4{background-color:#ebebeb;border-color:#ffffff;font-weight:bold;text-align:right;vertical-align:top}
+.tg .tg-8jgo{border-color:#ffffff;text-align:left;vertical-align:top}
+.tg .tg-ofj5{border-color:#ffffff;text-align:left;vertical-align:top}
+.tg .tg-center{border-color:#ffffff;text-align:center;vertical-align:top}
+</style>
+
+<table class="tg" style="margin-left: auto;  margin-right: auto;">
+<thead>
+  <tr>
+    <th class="tg-80zn">ChatGPT-3.5</th>    
+    <th class="tg-80zn">ChatGPT-4</th>
+    <th class="tg-80zn">Claude-2</th>
+    <th class="tg-80zn">Bard</th>
+    <th class="tg-80zn">LLaMA2-70b</th>    
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-center" colspan="1">Code 3 > Code 1 > Code 2</td>
+    <td class="tg-center" colspan="1">Code 1 > Code 2 > Code 3</td> 
+    <td class="tg-center" colspan="3">Code 3 > Code 2 > Code 1</td>        
+  </tr>  
+</tbody>
+</table>
+ <br/></p>
+<p>ChatGPT-3.5 indicates that Code 3 is the fastest because  <em> "it preallocates the memory for `y` before the loop, which can be more efficient than allocating it within the loop "</em>. Conversely, Claude-2, Bard, and LLaMA2-70b reach the same conclusion, but because  <em> "Code 3 avoids the function overhead of Code 1 and Code 2"</em>.</p>
+<p>ChatGPT-4 is the only model that provides the correct answer. Furthermore, it offers an appropriate analysis of each option.</p>
+<div class="itemNoSpace"><ul>
+<li><p>Code 1 is  <em> "good practice as the function is self-contained and does not depend on any global variable."</em></p>
+</li>
+</ul>
+<ul>
+<li><p>Code 2  <em> "directly uses the global variable x. This can slow down the execution as global variables in Julia are not as efficient as local variables."</em></p>
+</li>
+</ul>
+<ul>
+<li><p>Code 3  <em> "is the least efficient among the three codes due to the heavy use of global variables."</em></p>
+</li>
+</ul></div>
+<br/>
+ <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
+      <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
+      Remark </span>  </div>  <div class=content>     Phind only uses ChatGPT-4 if you&#39;re logged in, otherwise it&#39;s powered by ChatGPT-3.5.  </div>  </div>
+<p>      </div>
     </div>
   </div>
 </section>
@@ -1694,9 +2099,9 @@ h1{
 <footer class="py-1">    
     <!-- <p class="m-0"> -->
     <div class="container">
-       <span class="left-text"><a href="/blog/PAGES\01_packageUpdate" class="prevPage"><img src="/blog/assets/icons/prev-page.png"
+       <span class="left-text"><a href="/blog/PAGES\06_preAllocations" class="prevPage"><img src="/blog/assets/icons/prev-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"> Previous Post</a></span>
-       <span class="right-text"><a href="/blog/PAGES\03_LazyArrays" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
+       <span class="right-text"><a href="/blog/PAGES\01_packageUpdate" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"></a>    </span>              
     <span class="center-text">  © Martin Alfaro <br>Website Last Modified on July 31, 2023 </span>  
   </div>
@@ -2135,13 +2540,29 @@ window.onkeydown = function(event) {
 <nav class="navbar navbar-dark">
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
     <span class="navbar-toggler-icon"></span>
-    <a class="navbar-brand">World Heatmaps in Julia</a>
+    <a class="navbar-brand">Free AI Tools for Coding in Julia: Disappointing Results</a>
   </button>
   <div class="collapse navbar-collapse" id="collapsibleNavbar">
     <ul class="navbar-nav">
       
       <li class="nav-item">
-        <a class="nav-link" href="#summary" data-offset="-40">Summary</a>
+        <a class="nav-link" href="#introduction" data-offset="-40">Introduction</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#models_tested" data-offset="-40">Models Tested</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#conclusions_of_the_tests" data-offset="-40">Conclusions of the Tests</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#test_1_code_creation" data-offset="-40">TEST 1: CODE CREATION</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#test_2_identifying_performant_code" data-offset="-40">TEST 2: IDENTIFYING PERFORMANT CODE</a>
       </li>
       
     </ul>

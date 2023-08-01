@@ -1284,7 +1284,7 @@ h1{
   }
 
   
-  .name_format a { color: white; }
+  .name_format a { color:rgba(183, 219, 255, 0.8); }
   .name_format a:hover {
     color: rgb(212, 212, 212);
     color: rgb(214, 227, 240)
@@ -1317,8 +1317,10 @@ h1{
     
     <div class="name_format">
       <a href="https://alfaromartino.github.io/" target="_blank" rel="noopener noreferrer">Martin Alfaro</a>
+      <span style="font-size:70%; vertical-align:0.05em;">- PhD in Economics</span>
       </div>
-      <div class="phd_format">PhD in Economics</div>
+      <div class="phd_format">June 25, 2023</div>
+
     
     
     
@@ -1661,7 +1663,7 @@ h1{
 <div class="franklin-content">
  <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
       <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
-      Remark </span>  </div>  <div class=content>     The <strong> script used in this post</strong> can be found <a href="https://github.com/alfaromartino/blog/tree/main//assets/PAGES/05_allocations/codeDownload"><strong>here</strong></a> under the name <code>allCode.jl</code>. To replicate the code with the same package versions I used, download <code>allCode_withPkg.jl</code> instead, along with <code>Project.toml</code> and <code>Manifest.toml</code>.<br/><br/> The benchmarks in this post wrap each variable into the function <code>ref&#40;x&#41; &#61; &#40;Ref&#40;x&#41;&#41;&#91;&#93;</code>. This prevents the computer from realizing that we&#39;re repeating the same calculation. Otherwise, <code>@btime</code> ends up repeating the result after a few iterations, without performing any computation. We also interpolate the variables with <code>&#36;</code> to avoid a function&#39;s arguments being interpreted as a global variable.<br/><br/> The code has been tested under <code>Julia 1.9</code>.  </div>  </div>
+      Remark </span>  </div>  <div class=content>     The script in this post is available <a href="https://github.com/alfaromartino/blog/tree/main//assets/PAGES/05_allocations/codeDownload"><strong>here</strong></a> under the name <code>allCode.jl</code>. It&#39;s been tested under <code>Julia 1.9</code>.<br/><br/> For more accurate benchmarks, each variable is wrapped in <code>ref&#40;x&#41; &#61; &#40;Ref&#40;x&#41;&#41;&#91;&#93;</code> and interpolated through <code>&#36;</code>.  </div>  </div>
 <section id="introduction" class="scrollspy">
   <div class="container">
     <div class="row">
@@ -1895,7 +1897,7 @@ end
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"> Previous Post</a></span>
        <span class="right-text"><a href="/blog/PAGES\06_preAllocations" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"></a>    </span>              
-    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on July 3, 2023 </span>  
+    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on July 31, 2023 </span>  
   </div>
 <!-- </p>  -->
 </footer>
