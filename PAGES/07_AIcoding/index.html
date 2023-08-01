@@ -1669,7 +1669,7 @@ h1{
 <p>In the past, I&#39;ve applied AI tools for coding in HTML/CSS/JS, Python, and R. While the results are far from perfect, they tend to work relatively well after some minor adjustments. However, Julia is a less popular language, and hence there&#39;s a limited amount of information to train AI models. Despite this limitation, can we expect AI tools to perform decently well when applied to Julia?</p>
 <p>The post explores this question by focusing on free AI tools. The conclusion is that <strong> these tools applied to Julia tend to perform quite poorly</strong>. My claim is supported by  <em> two reasons</em>.</p>
 <p>First, the suggested Julia code often requires more than simple adjustments—it&#39;s not uncommon for the code to need a complete rewrite, unlike what occurs with more popular languages.  </p>
-<p>Second, AI chatbots perform particularly poorly at justifying their answers. This is a more severe issue than the first one, as it affects new learners disproportionately and incorrect explanations aren&#39;t as easy to spot as invalid code. In fact, it&#39;s quite common obtaining answers based on other languages. This is likely arising because of the limited Julia data, combined with ample information for other languages. As an example, all the AI chatbots consistently claim that vectorized code is faster than for-loops in Julia, and even discourage the use of functions.</p>
+<p>Second, AI chatbots perform particularly poorly at explaining how the Julia language works. This is a more severe issue than the first one, as it affects new learners disproportionately and incorrect explanations aren&#39;t as easy to spot as invalid code. In fact, it&#39;s quite common obtaining answers based on other languages. This is likely arising because of the limited Julia data, combined with ample information for other languages. As an example, all the AI chatbots consistently claim that vectorized code is faster than for-loops in Julia, and even discourage the use of functions. Similarly, the AIs state that Julia creates views of slices by default, rather than copies. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> ChatGPT-4 was providing different answers, depending on the question asked.  </span></span> </p>
 <p>On a more positive note, <strong> AI tools seem pretty efficient at constructing regular expressions in Julia</strong>. This is remarkable, as writing regular expressions isn&#39;t particularly hard, but can quickly become tedious. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> To avoid a lengthy post, examples with regular expressions aren&#39;t included. I&#39;ll probably write a separate post about it.  </span></span></p>
 <p>Overall, the main message is that <strong> you should be cautious when using AI tools for coding, but even more so when applying them to Julia</strong>. This becomes particularly relevant if you rely on AI tools to learn the language itself.</p>
 <p>      </div>
@@ -1681,7 +1681,7 @@ h1{
     <div class="row">
       <div class="col-lg- mx-auto">
         <h2>Models Tested</h2></p>
-<p>I present the outputs from several sample prompts. The goal is to illustrate my impressions of AI tools for Julia coding. </p>
+<p>I present the outputs from several sample prompts to illustrate my impressions of AI tools for Julia coding. </p>
 <p>I only consider  <span style="font-style:italic; font-size:18px;"><strong> free options</strong></span>, which include ChatGPT-3.5, ChatGPT-4, Bard, Claude-2, and LLaMA2-70b. You can freely access each as follows. </p>
 <div class="itemNoSpace"><ul>
 <li><p><strong> ChatGPT-3.5</strong>, <strong> Claude-2</strong>, and <strong> LLaMA2-70b</strong>: accessed through <a href="https://poe.com/">poe.com</a>. The first two models can also be accessed directly through their websites. The less performant version Claude-1 yields similar results to Claude-2 for Julia.</p>
@@ -1728,7 +1728,7 @@ h1{
     <div class="row">
       <div class="col-lg- mx-auto">
         <h2>TEST 1: CODE CREATION</h2></p>
-<p>I show two tests. The first one describes the task concisely, without any explanation. This helps us identify whether any problems stem from the user&#39;s formulation or the AI&#39;s ability to code in Julia. The second one considers a more specific task, for which I provide some clarifications. Overall, the solutions suggested by the AI accomplish their purpose, but tend to be more complex than necessary. </p>
+<p>I consider two examples. The first one describes the task concisely, without any explanation. This helps us identify whether any problems stem from the user&#39;s formulation or the AI&#39;s ability to code in Julia. The second example considers a more specific task, for which I provide clarifications. Overall, the solutions suggested by the AI accomplish their purpose, but tend to be more complex than necessary. </p>
  <h4> Simple Task </h4>
 <p>I deliberately provided a short vague prompt, by not defining the concepts of &quot;normalize&quot; and &quot;share&quot;. </p>
 <p>  <span style="color: rgb(73, 113, 153);"><strong> PROMPT</strong></span>:  <b><tt>Provide some code in Julia that normalizes a vector, expressing each entry as a share. </tt></b></p>
@@ -1917,7 +1917,7 @@ end</code></pre>
     <div class="row">
       <div class="col-lg- mx-auto">
         <h2>TEST 2: IDENTIFYING PERFORMANT CODE</h2></p>
-<p>For this test, I also consider two options. The first one asks the AIs to improve some existent code. The second one asks the AIs to rank three code snippets by performance.</p>
+<p>For this test, I also consider two examples. The first one asks the AIs to enhance some existing code, whereas the second one asks the AIs to rank three code snippets by performance.</p>
  <h4> Asking for Improvements in Code </h4>
 <p>The example considers a code snippet that is clearly inefficient due to the use of global variables. The goal was to identify whether the AIs would suggest wrapping the code in a function. None of them did it.</p>
  <div class=" code_box"> <details  open><summary> PROMPT  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
@@ -2091,6 +2091,48 @@ padding-left:0.5em; padding-right:0.5em;}
  <div class=note>  <div class=title>  <span class="note_title" style="font-weight:500;">
       <img src="/blog/assets/icons/exclamation.png" style="width:auto; height:30px;opacity:0.99;padding-bottom:4px; margin-left:-4px;">      
       Remark </span>  </div>  <div class=content>     Phind only uses ChatGPT-4 if you&#39;re logged in, otherwise it&#39;s powered by ChatGPT-3.5.  </div>  </div>
+<p>      </div>
+    </div>
+  </div>
+</section>
+<section id="test_3_questions_about_the_julia_language" class="scrollspy section-bg-color">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg- mx-auto">
+        <h2>TEST 3: QUESTIONS ABOUT THE JULIA LANGUAGE</h2></p>
+<p>Finally, I tested whether the AI tools could be helpful to learn the Julia language. This was done by asking about the slicing behavior in Julia. </p>
+<p>The prompt was as follows.</p>
+ <div class=" code_box"> <details  open><summary> PROMPT  </summary> <div class="code_inline"><div class="code_NoFormat"></p>
+<pre><code class="language-julia"># What&#39;s the behavior of slicing in Julia? Does it create a copy or a view?
+
+# For instance, given
+x &#61; &#91;4,5,6&#93;
+y &#61; x&#91;1:2&#93;
+# does y behave as a copy or a view? what are the consequences on &#96;x&#96; of executing &#96;y&#91;1&#93; &#61; 0&#96;?</code></pre>
+<p></div> </div>  </details></div>
+<p>And the results are the following. </p>
+ <div class=" hide_tab"> <details  open><summary  >  </summary>  <p></p>
+ <div class="tab_wrapper">
+ <div class="tab_code_links">
+    <button class="tablink first_tab active" data-id=""> ChatGPT-3.5 </button>
+    <button class="tablink" data-id=""> ChatGPT-4</button>
+    <button class="tablink" data-id=""> Claude-2 </button>
+    <button class="tablink" data-id=""> Bard </button>
+    <button class="tablink" data-id=""> LLaMA2-70b </button>
+</div><div data-id="" class="tabcontent active">
+ <div style="text-align:center;"><img src="/blog/assets/PAGES/07_AIcoding/pics/chatgpt3_01.png" style="width: auto ; height: 600px; padding-bottom:1em"></div>
+ </div><div data-id="" class="tabcontent">
+ <div style="text-align:center;"><img src="/blog/assets/PAGES/07_AIcoding/pics/chatgpt4_03.png" style="width: auto ; height: 600px; padding-bottom:1em"></div>
+ </div><div data-id="" class="tabcontent">
+ <div style="text-align:center;"><img src="/blog/assets/PAGES/07_AIcoding/pics/claude2_02.png" style="width: auto ; height: 600px; padding-bottom:1em"></div>
+ </div><div data-id="" class="tabcontent">
+ <div style="text-align:center;"><img src="/blog/assets/PAGES/07_AIcoding/pics/bard_01.png" style="width: auto ; height: 600px; padding-bottom:1em"></div>
+ </div><div data-id="" class="tabcontent">
+ <div style="text-align:center;"><img src="/blog/assets/PAGES/07_AIcoding/pics/llama2_01.png" style="width: auto ; height: 600px; padding-bottom:1em"></div>
+ </div></div>
+<p>  </p></details></div>
+<p>While ChatGPT-4 provided the right answer above, this wasn&#39;t always the case. For instance, this is what occurs when I made the AI compare the slicing behavior in Julia and NumPy &#40;the figure is restricted to the answer for Julia&#41;.</p>
+ <div style="text-align:center;"><img src="/blog/assets/PAGES/07_AIcoding/pics/chatgpt4_01.png" style="width: auto ; height: 400px; padding-bottom:1em"></div>
 <p>      </div>
     </div>
   </div>
@@ -2563,6 +2605,10 @@ window.onkeydown = function(event) {
       
       <li class="nav-item">
         <a class="nav-link" href="#test_2_identifying_performant_code" data-offset="-40">TEST 2: IDENTIFYING PERFORMANT CODE</a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link" href="#test_3_questions_about_the_julia_language" data-offset="-40">TEST 3: QUESTIONS ABOUT THE JULIA LANGUAGE</a>
       </li>
       
     </ul>
