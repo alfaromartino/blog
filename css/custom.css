@@ -8,20 +8,20 @@
   margin-top: -1em;  
   padding-bottom:1.5em;
 }
-.bullets ul { 
+.bullets ul,  .bullets ol{ 
   margin-left: 0em;
   line-height: 1.15;
   padding-top: 8px;
 }
   
 
-.bullets ul li { 
+.bullets ul li , .bullets ol li{ 
     margin-left: 1em;
     padding:0; 
     margin-bottom: -0.5em;  
     }
 
-.bullets ul li p { 
+.bullets ul li p, .bullets ol li p{ 
   margin-left: 0em;
   line-height: 1.55;
   text-indent:0;}

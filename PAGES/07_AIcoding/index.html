@@ -1713,7 +1713,7 @@ h1{
 <li><p><strong> ChatGPT-4 seems to be the top option at the moment</strong>, although its performance when applied to Julia is not breathtaking. Yet, it signals the possibility of better free alternatives arriving quite soon. Indeed, given the quick advances in the field, it&#39;s highly likely that this post will become obsolete within just a few months&#33;</p>
 </li>
 </ol>
-<ol>
+<ol start="2">
 <li><p><strong> LLaMA2-70b and Bard</strong> are the worst alternatives. Furthermore, I was expecting a better performance from Claude-2—I had previously used it for various tasks, and their results were outperforming ChatGPT-3.5 in several domains.</p>
 </li>
 </ol></div>
@@ -2145,7 +2145,7 @@ y &#61; x&#91;1:2&#93;
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"> Previous Post</a></span>
        <span class="right-text"><a href="/blog/PAGES\08_structural" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"></a>    </span>              
-    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on September 4, 2023 </span>  
+    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on September 5, 2023 </span>  
   </div>
 <!-- </p>  -->
 </footer>
@@ -2760,12 +2760,12 @@ document.onkeydown = function(evt) {
 
       .index_container,  .index_container section{font-size: 100%;}
       
-
       .index_container{
         padding-left:1%;
         padding-right:1%;              
       }
 
+      
       h1 {font-size: 180%; padding-top:0.5em ;padding-bottom:0em; }
       h2, .lead {font-size: 110%; }
       .lead {padding-top:0em;padding-bottom: 1em;}
@@ -2801,13 +2801,22 @@ document.onkeydown = function(evt) {
      
 
       /* .left_bar ul {padding-left:0 !important; margin-left:0}   */
-      .left_bar ul, .left_bar ul li {text-indent:0; padding-top:0.5em;padding-bottom:1.5em !important; height:auto;}
+      .left_bar ul, .left_bar ul li {text-indent:0; padding-top:0.0em !important;padding-bottom:1.5em !important; height:auto;}
       
-      .left_bar ul li a {width:60px !important;}  
+      .left_bar ul li a {width:60px !important; }  
 
       .left_bar img{
       width:0% !important; height:0% !important; visibility: hidden;}  
-    
+      
+      .modal {padding: 2px !important;}
+      
+      .bullets ol, .itemNoSpace ol{padding: 6px; }
+      .bullets ul li, .itemNoSpace ul li{padding-right: 5%; padding-left:0;margin-left:0;}
+      .bullets ul li p, .itemNoSpace ul li p {line-height:1.55;}
+      
+      .index_container ul li {padding-right: 5%; padding-left: 0}
+      .index_container ul {padding-right: 0; padding-left: 5%;}
+
       
 }
 
@@ -2868,6 +2877,15 @@ document.onkeydown = function(evt) {
 
       .left_bar img{
       width:0% !important; height:0% !important; visibility: hidden;}  
+
+      .modal {padding: 2px !important;}
+      
+      .bullets ol, .itemNoSpace ol{padding: 6px; }
+      .bullets ul li, .itemNoSpace ul li{padding-right: 5%; padding-left:0;margin-left:0;}
+      .bullets ul li p, .itemNoSpace ul li p {line-height:1.55;}
+      
+      .index_container ul li {padding-right: 5%; padding-left: 0}
+      .index_container ul {padding-right: 0; padding-left: 5%;}
 }
 
 
