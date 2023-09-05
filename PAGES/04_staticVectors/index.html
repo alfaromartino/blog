@@ -1683,7 +1683,7 @@ h1{
       <div class="col-lg- mx-auto">
         <h2>Motivating Example</h2></p>
 <p>Let&#39;s concentrate on a concrete situation to facilitate our intuition. Suppose that a university is assessing potential students for their admission. As the university has too many candidates, they decide to perform a screening procedure. This procedure involves the candidates taking a pre-test, and then the university comparing their scores with the admission thresholds of previous years. Only those candidates above the threshold of  <em> at least one</em> previous year will be considered.</p>
-<p>To formalize the situation, let&#39;s create some mock data. The details for constructing the dataset are irrelevant for our purposes, and hence we&#39;ll omit them. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> See the code uploaded if you want to review the procedure.  </span></span>  What matters is that we&#39;ll use two variables, named <code>pre_scores</code> and <code>past_thresholds</code>, which are created through the function <code>generate_data</code>.  </p>
+<p>To formalize the situation, let&#39;s create some mock data. The details for constructing the dataset are irrelevant for our purposes, and hence we&#39;ll omit them. <span class="footn supr">&#91;note&#93;  <span class="footn_text"> See the code uploaded if you want to review the procedure.  </span></span>  What matters is that we&#39;ll use two variables, named <code>pre_scores</code> and <code>past_thresholds</code>, which are created through the function <code>generate_variables</code>.  </p>
  <div class=" code_box"> <details  open><summary> Code to Set the Scenario  </summary> <div class="code_inline"><div class="code_NoFormat"><pre><code class="language-julia">Random.seed&#33;&#40;123&#41;    #setting the seed for reproducibility 
 pre_scores, past_thresholds &#61; generate_variables&#40;nr_years &#61; 20, nr_people &#61; 10_000&#41;
 
@@ -1922,7 +1922,7 @@ end
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"> Previous Post</a></span>
        <span class="right-text"><a href="/blog/PAGES\05_allocations" class="nextPage">Next Post <img src="/blog/assets/icons/next-page.png"
         style="width:40px; height:auto;opacity:0.9;padding-bottom:5px;"></a>    </span>              
-    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on July 31, 2023 </span>  
+    <span class="center-text">  © Martin Alfaro <br>Website Last Modified on September 4, 2023 </span>  
   </div>
 <!-- </p>  -->
 </footer>
@@ -2271,7 +2271,7 @@ document.addEventListener("keydown", function(event) {
 
 
 
-// // USER- TO USE ESCAPE TO CLOSE IT
+// // TO USE ESCAPE TO CLOSE IT
 window.onkeydown = function(event) {
         if (event.key == 'Escape') {
             for(let modal of modals) {

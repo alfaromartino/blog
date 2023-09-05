@@ -1,0 +1,31 @@
+function computation(sᵢ, ΔSₘ, eᵢ, σ)
+    êᵢ = similar(sᵢ); p̂ᵢ = similar(sᵢ)
+
+    function solver!(res, sol)
+        P̂  = sol[1]
+        ŝᵢ  = sol[2:length(sᵢ)+1]
+
+        for i in eachindex(êᵢ)
+            êᵢ[i] = (σ - (σ - 1) * sᵢ[i] * ŝᵢ[i]) / (σ - (σ - 1) * sᵢ[i])
+            p̂ᵢ[i] = êᵢ[i] * (eᵢ[i] - 1) / (êᵢ[i] * eᵢ[i] - 1)
+        end
+
+        sum_shares = [(1 - ŝᵢ[i]) * sᵢ[i] for i in eachindex(sᵢ)]
+        res[1]     = sum(sum_shares) - ΔSₘ
+
+        for i in 2:length(sᵢ)+1
+            res[i] = ŝᵢ[i-1] - p̂ᵢ[i-1]^(1 - σ) * P̂^(σ - 1)
+        end
+
+    end
+
+    function execute()
+        sol0     = vcat(0.9, 0.8 .* ones(length(sᵢ)))
+        solution = nlsolve(solver!, sol0)
+
+        converged(solution) || error("Failed to converge")
+        return solution.zero
+    end
+
+    return execute()
+end
